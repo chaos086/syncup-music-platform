@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+}
+
+group = 'com.syncup'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JUnit 5 para testing
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    
+    // Dependencias adicionales para reportes CSV
+    implementation 'org.apache.commons:commons-csv:1.9.0'
+    
+    // JavaFX Controls y FXML
+    implementation 'org.openjfx:javafx-controls:17.0.2'
+    implementation 'org.openjfx:javafx-fxml:17.0.2'
+}
+
+javafx {
+    version = '17.0.2'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+application {
+    mainClass = 'com.syncup.Main'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Configuración para ejecutar con JavaFX
+run {
+    jvmArgs = [
+        '--add-opens', 'javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED',
+        '--add-opens', 'javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED',
+        '--add-opens', 'javafx.base/com.sun.javafx.binding=ALL-UNNAMED',
+        '--add-opens', 'javafx.base/com.sun.javafx.event=ALL-UNNAMED',
+        '--add-opens', 'javafx.graphics/com.sun.javafx.stage=ALL-UNNAMED'
+    ]
+}
+
+// Configuración de JavaDoc
+javadoc {
+    options.addBooleanOption('html5', true)
+    options.addStringOption('Xdoclint:none', '-quiet')
+}

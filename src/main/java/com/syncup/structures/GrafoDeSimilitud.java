@@ -9,7 +9,6 @@ import java.util.*;
  * para evitar incompatibilidades con la HashMap propia del proyecto.
  */
 public class GrafoDeSimilitud {
-    // Usar java.util.Map en lugar de com.syncup.structures.HashMap
     private final Map<String, List<Arista>> grafo;
     private final Map<String, Usuario> usuarios;
     private final Map<String, Cancion> canciones;
@@ -31,9 +30,7 @@ public class GrafoDeSimilitud {
         numeroNodos++;
     }
 
-    public void agregarCancion(Cancion cancion) {
-        if (cancion != null) canciones.putIfAbsent(cancion.getId(), cancion);
-    }
+    public void agregarCancion(Cancion cancion) { if (cancion != null) canciones.putIfAbsent(cancion.getId(), cancion); }
 
     public void calcularSimilitudes() {
         for (List<Arista> aristas : grafo.values()) aristas.clear();
@@ -103,6 +100,15 @@ public class GrafoDeSimilitud {
         }
         res.sort((x,y)->Double.compare(y.similitud,x.similitud));
         return res.subList(0, Math.min(limite, res.size()));
+    }
+
+    // NUEVO: Estadísticas del grafo usadas por RecommendationEngine
+    public String getEstadisticas() {
+        double densidad = numeroNodos > 1 ? (double) numeroAristas / (numeroNodos * (numeroNodos - 1)) : 0.0;
+        return String.format(
+            "=== Grafo de Similitud ===\nUsuarios: %d\nConexiones: %d\nDensidad: %.3f\nCanciones indexadas: %d",
+            numeroNodos, numeroAristas/2, densidad, canciones.size()
+        );
     }
 
     public static class UsuarioSimilar { public final Usuario usuario; public final double similitud; public UsuarioSimilar(Usuario u,double s){usuario=u;similitud=s;} }

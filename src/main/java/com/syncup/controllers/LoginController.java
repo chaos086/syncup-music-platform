@@ -48,9 +48,9 @@ public class LoginController implements Initializable {
         else { showError("Usuario o contraseña incorrectos"); }
     }
 
-    // Nuevo: para que el FXML no falle si existe botón de registro
+    // Registro: crea usuario y permanece en pantalla de login
     @FXML private void handleRegister(ActionEvent e) {
-        showError("Registro no implementado aún. Usa demo_user/demo123 o admin/admin123");
+        RegisterDialogController.showRegisterDialog(dataManager);
     }
 
     @FXML private void handleDemoLogin() { usernameField.setText("demo_user"); passwordField.setText("demo123"); handleLogin(); }
@@ -75,7 +75,7 @@ public class LoginController implements Initializable {
             stage.setScene(scene);
             stage.setTitle(usuario.isEsAdmin()?"SyncUp - Admin":"SyncUp");
             stage.centerOnScreen();
-        } catch (Exception e) { showError("Error cargando UI: "+e.getMessage()); }
+        } catch (Exception e1) { showError("Error cargando UI: "+e1.getMessage()); }
     }
 
     private Parent createFallback(Usuario usuario) {

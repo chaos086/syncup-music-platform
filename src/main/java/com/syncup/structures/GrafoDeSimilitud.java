@@ -1,122 +1,87 @@
 package com.syncup.structures;
 
-import com.syncup.models.Usuario;
 import com.syncup.models.Cancion;
+import com.syncup.models.Usuario;
 import java.util.*;
 
-/**
- * Grafo de similitud entre usuarios usando solo colecciones java.util
- * para evitar incompatibilidades con la HashMap propia del proyecto.
- */
 public class GrafoDeSimilitud {
-    private final Map<String, List<Arista>> grafo;
-    private final Map<String, Usuario> usuarios;
-    private final Map<String, Cancion> canciones;
-    private int numeroNodos;
-    private int numeroAristas;
+    private final Map<String, List<Arista>> grafo = new HashMap<>();
+    private final Map<String, Usuario> usuarios = new HashMap<>();
+    private final Map<String, Cancion> canciones = new HashMap<>();
+    private int numeroNodos = 0;
+    private int numeroAristas = 0;
 
-    public GrafoDeSimilitud() {
-        this.grafo = new java.util.HashMap<>();
-        this.usuarios = new java.util.HashMap<>();
-        this.canciones = new java.util.HashMap<>();
-        this.numeroNodos = 0;
-        this.numeroAristas = 0;
-    }
+    public void agregarUsuario(Usuario u){ if(u==null||usuarios.containsKey(u.getId())) return; usuarios.put(u.getId(),u); grafo.put(u.getId(), new ArrayList<>()); numeroNodos++; }
+    public void agregarCancion(Cancion c){ if(c!=null) canciones.putIfAbsent(c.getId(), c); }
 
-    public void agregarUsuario(Usuario usuario) {
-        if (usuario == null || usuarios.containsKey(usuario.getId())) return;
-        usuarios.put(usuario.getId(), usuario);
-        grafo.put(usuario.getId(), new ArrayList<>());
-        numeroNodos++;
-    }
-
-    public void agregarCancion(Cancion cancion) { if (cancion != null) canciones.putIfAbsent(cancion.getId(), cancion); }
-
-    public void calcularSimilitudes() {
-        for (List<Arista> aristas : grafo.values()) aristas.clear();
+    public void calcularSimilitudes(){
+        for (List<Arista> l: grafo.values()) l.clear();
         numeroAristas = 0;
         List<String> ids = new ArrayList<>(usuarios.keySet());
-        for (int i=0;i<ids.size();i++) {
-            for (int j=i+1;j<ids.size();j++) {
-                String u1 = ids.get(i), u2 = ids.get(j);
-                double s = calcularSimilitudEntreUsuarios(usuarios.get(u1), usuarios.get(u2));
-                if (s > 0.1) agregarArista(u1, u2, s);
-            }
+        for (int i=0;i<ids.size();i++) for (int j=i+1;j<ids.size();j++){
+            String a = ids.get(i), b = ids.get(j);
+            double s = calcularSimilitud(usuarios.get(a), usuarios.get(b));
+            if (s>0.1) agregarArista(a,b,s);
         }
     }
 
-    private double calcularSimilitudEntreUsuarios(Usuario u1, Usuario u2) {
-        if (u1==null||u2==null) return 0.0;
-        double fav = calcularSimilitudJaccard(u1.getCancionesFavoritas(), u2.getCancionesFavoritas());
-        double gen = calcularSimilitudJaccard(u1.getGenerosFavoritos(), u2.getGenerosFavoritos());
-        double art = calcularSimilitudArtistas(u1.getCancionesFavoritas(), u2.getCancionesFavoritas());
-        return Math.min(1.0, fav*0.5 + gen*0.3 + art*0.2);
+    private double calcularSimilitud(Usuario a, Usuario b){
+        if (a==null||b==null) return 0.0;
+        return Math.min(1.0,
+            0.5*coefJaccard(a.getCancionesFavoritas(), b.getCancionesFavoritas())+
+            0.3*coefJaccard(a.getGenerosFavoritos(), b.getGenerosFavoritos())+
+            0.2*similitudArtistas(a.getCancionesFavoritas(), b.getCancionesFavoritas()));
     }
 
-    private double calcularSimilitudJaccard(List<String> a, List<String> b) {
-        if (a.isEmpty() && b.isEmpty()) return 0.0;
-        Set<String> s1 = new HashSet<>(a), s2 = new HashSet<>(b);
-        Set<String> inter = new HashSet<>(s1); inter.retainAll(s2);
-        Set<String> uni = new HashSet<>(s1); uni.addAll(s2);
-        if (uni.isEmpty()) return 0.0;
-        return (double) inter.size() / uni.size();
+    private double coefJaccard(List<String> x, List<String> y){
+        if (x.isEmpty() && y.isEmpty()) return 0.0;
+        Set<String> a=new HashSet<>(x), b=new HashSet<>(y), inter=new HashSet<>(a); inter.retainAll(b); a.addAll(b); if(a.isEmpty()) return 0.0; return (double)inter.size()/a.size();
     }
 
-    private double calcularSimilitudArtistas(List<String> f1, List<String> f2) {
-        Set<String> a1 = new HashSet<>(), a2 = new HashSet<>();
-        for (String id: f1) { Cancion c = canciones.get(id); if (c!=null){ a1.add(c.getArtista()); a1.addAll(c.getArtistasColaboradores()); } }
-        for (String id: f2) { Cancion c = canciones.get(id); if (c!=null){ a2.add(c.getArtista()); a2.addAll(c.getArtistasColaboradores()); } }
-        return calcularSimilitudJaccard(new ArrayList<>(a1), new ArrayList<>(a2));
+    private double similitudArtistas(List<String> x, List<String> y){
+        Set<String> a=new HashSet<>(), b=new HashSet<>();
+        for(String id:x){ Cancion c=canciones.get(id); if(c!=null){ a.add(c.getArtista()); a.addAll(c.getArtistasColaboradores()); }}
+        for(String id:y){ Cancion c=canciones.get(id); if(c!=null){ b.add(c.getArtista()); b.addAll(c.getArtistasColaboradores()); }}
+        return coefJaccard(new ArrayList<>(a), new ArrayList<>(b));
     }
 
-    private void agregarArista(String a, String b, double peso) {
-        if (!grafo.containsKey(a) || !grafo.containsKey(b)) return;
-        grafo.get(a).add(new Arista(b,peso));
-        grafo.get(b).add(new Arista(a,peso));
-        numeroAristas += 2;
-    }
+    private void agregarArista(String a,String b,double p){ if(!grafo.containsKey(a)||!grafo.containsKey(b)) return; grafo.get(a).add(new Arista(b,p)); grafo.get(b).add(new Arista(a,p)); numeroAristas+=2; }
 
-    public List<UsuarioSimilar> encontrarUsuariosSimilares(String id, int limite) {
-        if (!grafo.containsKey(id)) return new ArrayList<>();
-        Map<String, Double> dist = new java.util.HashMap<>();
-        Set<String> vis = new HashSet<>();
-        PriorityQueue<NodoDijkstra> pq = new PriorityQueue<>();
-        for (String n : grafo.keySet()) dist.put(n, n.equals(id)?1.0:0.0);
-        pq.offer(new NodoDijkstra(id,1.0));
-        while(!pq.isEmpty()){
-            NodoDijkstra cur = pq.poll();
-            if (!vis.add(cur.usuarioId)) continue;
-            for (Arista ar : grafo.get(cur.usuarioId)){
-                double ns = Math.min(cur.similitud, ar.peso);
-                if (ns > dist.get(ar.destino)) { dist.put(ar.destino, ns); pq.offer(new NodoDijkstra(ar.destino, ns)); }
+    // NUEVO: método usado por RecommendationEngine
+    public List<Cancion> obtenerRecomendaciones(String usuarioId, int limite){
+        Usuario u = usuarios.get(usuarioId);
+        if (u==null) return new ArrayList<>();
+        List<UsuarioSimilar> similares = encontrarUsuariosSimilares(usuarioId, 10);
+        Set<String> propias = new HashSet<>(u.getCancionesFavoritas());
+        Map<String, Double> score = new HashMap<>();
+        for (UsuarioSimilar s: similares){
+            for (String cid: s.usuario.getCancionesFavoritas()){
+                if (!propias.contains(cid)) score.put(cid, score.getOrDefault(cid,0.0)+s.similitud);
             }
         }
-        List<UsuarioSimilar> res = new ArrayList<>();
-        for (Map.Entry<String,Double> e: dist.entrySet()){
-            if (!e.getKey().equals(id) && e.getValue()>0.1){
-                Usuario u = usuarios.get(e.getKey());
-                if (u!=null) res.add(new UsuarioSimilar(u,e.getValue()));
-            }
+        List<Map.Entry<String,Double>> orden = new ArrayList<>(score.entrySet());
+        orden.sort((x,y)->Double.compare(y.getValue(), x.getValue()));
+        List<Cancion> res = new ArrayList<>();
+        for (int i=0;i<Math.min(limite, orden.size()); i++){
+            Cancion c = canciones.get(orden.get(i).getKey()); if(c!=null) res.add(c);
         }
-        res.sort((x,y)->Double.compare(y.similitud,x.similitud));
-        return res.subList(0, Math.min(limite, res.size()));
+        return res;
     }
 
-    // NUEVO: Estadísticas del grafo usadas por RecommendationEngine
-    public String getEstadisticas() {
-        double densidad = numeroNodos > 1 ? (double) numeroAristas / (numeroNodos * (numeroNodos - 1)) : 0.0;
-        return String.format(
-            "=== Grafo de Similitud ===\nUsuarios: %d\nConexiones: %d\nDensidad: %.3f\nCanciones indexadas: %d",
-            numeroNodos, numeroAristas/2, densidad, canciones.size()
-        );
+    public List<UsuarioSimilar> encontrarUsuariosSimilares(String id, int limite){
+        if(!grafo.containsKey(id)) return new ArrayList<>();
+        Map<String, Double> dist=new HashMap<>(); Set<String> vis=new HashSet<>(); PriorityQueue<Nodo> pq=new PriorityQueue<>();
+        for(String n: grafo.keySet()) dist.put(n, n.equals(id)?1.0:0.0); pq.offer(new Nodo(id,1.0));
+        while(!pq.isEmpty()){ Nodo cur=pq.poll(); if(!vis.add(cur.id)) continue; for(Arista ar: grafo.get(cur.id)){ double ns=Math.min(cur.s, ar.p); if(ns>dist.get(ar.d)){ dist.put(ar.d, ns); pq.offer(new Nodo(ar.d, ns)); } } }
+        List<UsuarioSimilar> out=new ArrayList<>();
+        for(Map.Entry<String,Double> e: dist.entrySet()) if(!e.getKey().equals(id)&&e.getValue()>0.1){ Usuario uu=usuarios.get(e.getKey()); if(uu!=null) out.add(new UsuarioSimilar(uu,e.getValue())); }
+        out.sort((x,y)->Double.compare(y.similitud,x.similitud));
+        return out.subList(0, Math.min(limite, out.size()));
     }
 
-    public static class UsuarioSimilar { public final Usuario usuario; public final double similitud; public UsuarioSimilar(Usuario u,double s){usuario=u;similitud=s;} }
-    private static class Arista { String destino; double peso; Arista(String d,double p){destino=d;peso=p;} }
-    private static class NodoDijkstra implements Comparable<NodoDijkstra>{ String usuarioId; double similitud; NodoDijkstra(String u,double s){usuarioId=u;similitud=s;} public int compareTo(NodoDijkstra o){ return Double.compare(o.similitud, this.similitud);} }
+    public String getEstadisticas(){ double dens = numeroNodos>1 ? (double)numeroAristas/(numeroNodos*(numeroNodos-1)) : 0.0; return String.format("=== Grafo de Similitud ===\nUsuarios: %d\nConexiones: %d\nDensidad: %.3f\nCanciones indexadas: %d", numeroNodos, numeroAristas/2, dens, canciones.size()); }
 
-    public int getNumeroNodos(){ return numeroNodos; }
-    public int getNumeroAristas(){ return numeroAristas/2; }
-    public boolean estanConectados(String a,String b){ if(!grafo.containsKey(a)) return false; return grafo.get(a).stream().anyMatch(x->x.destino.equals(b)); }
-    public double obtenerPesoArista(String a,String b){ if(!grafo.containsKey(a)) return 0.0; return grafo.get(a).stream().filter(x->x.destino.equals(b)).mapToDouble(x->x.peso).findFirst().orElse(0.0);}    
+    public static class UsuarioSimilar{ public final Usuario usuario; public final double similitud; public UsuarioSimilar(Usuario u,double s){usuario=u;similitud=s;} }
+    private static class Arista{ String d; double p; Arista(String d,double p){this.d=d;this.p=p;} }
+    private static class Nodo implements Comparable<Nodo>{ String id; double s; Nodo(String i,double s){id=i;this.s=s;} public int compareTo(Nodo o){ return Double.compare(o.s, this.s);} }
 }

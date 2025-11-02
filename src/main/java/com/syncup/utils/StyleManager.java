@@ -4,7 +4,9 @@ import javafx.scene.Scene;
 
 /**
  * Gestor de estilos CSS para la aplicación SyncUp.
- * Aplica el tema inspirado en Spotify con colores y estilos característicos.
+ * Aplica temas visuales consistentes en toda la aplicación.
+ * RF-028: Interface JavaFX moderna con tema tipo Spotify
+ * COMPATIBLE CON JAVA 11 - Sin text blocks
  * 
  * @author Alejandro Marín Hernández
  * @version 1.0
@@ -12,172 +14,212 @@ import javafx.scene.Scene;
  */
 public class StyleManager {
     
-    /** Ruta al archivo CSS principal del tema Spotify */
-    private static final String SPOTIFY_THEME_CSS = "/css/spotify-theme.css";
+    /** Ruta del archivo CSS principal */
+    private static final String MAIN_STYLESHEET = "/css/spotify-theme.css";
     
-    /** Ruta al archivo CSS de componentes */
-    private static final String COMPONENTS_CSS = "/css/components.css";
-    
-    /** Ruta al archivo CSS de animaciones */
-    private static final String ANIMATIONS_CSS = "/css/animations.css";
+    /** CSS por defecto embebido (JAVA 11 COMPATIBLE) */
+    private static final String DEFAULT_CSS = 
+        ".root { " +
+        "-fx-background-color: #191414; " +
+        "-fx-font-family: 'Segoe UI', Arial, sans-serif; " +
+        "} " +
+        ".app-title { " +
+        "-fx-font-size: 28px; " +
+        "-fx-font-weight: bold; " +
+        "-fx-text-fill: white; " +
+        "} " +
+        ".app-subtitle { " +
+        "-fx-font-size: 14px; " +
+        "-fx-text-fill: #B3B3B3; " +
+        "} " +
+        ".login-container { " +
+        "-fx-background-color: linear-gradient(135deg, #1DB954 0%, #1ed760 100%); " +
+        "-fx-padding: 40px; " +
+        "} " +
+        ".login-box { " +
+        "-fx-background-color: #000000; " +
+        "-fx-background-radius: 8px; " +
+        "-fx-padding: 40px; " +
+        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0); " +
+        "} " +
+        ".login-field { " +
+        "-fx-background-color: #404040; " +
+        "-fx-text-fill: white; " +
+        "-fx-prompt-text-fill: #B3B3B3; " +
+        "-fx-background-radius: 4px; " +
+        "-fx-border-color: transparent; " +
+        "-fx-padding: 12px; " +
+        "-fx-font-size: 14px; " +
+        "} " +
+        ".login-field:focused { " +
+        "-fx-border-color: #1DB954; " +
+        "-fx-border-width: 2px; " +
+        "} " +
+        ".primary-button { " +
+        "-fx-background-color: #1DB954; " +
+        "-fx-text-fill: white; " +
+        "-fx-font-weight: bold; " +
+        "-fx-font-size: 14px; " +
+        "-fx-background-radius: 50px; " +
+        "-fx-padding: 12px 32px; " +
+        "-fx-border-color: transparent; " +
+        "-fx-cursor: hand; " +
+        "} " +
+        ".primary-button:hover { " +
+        "-fx-background-color: #1ed760; " +
+        "-fx-scale-x: 1.04; " +
+        "-fx-scale-y: 1.04; " +
+        "} " +
+        ".secondary-button { " +
+        "-fx-background-color: transparent; " +
+        "-fx-text-fill: white; " +
+        "-fx-border-color: #404040; " +
+        "-fx-border-width: 1px; " +
+        "-fx-border-radius: 4px; " +
+        "-fx-background-radius: 4px; " +
+        "-fx-padding: 8px 16px; " +
+        "} " +
+        ".secondary-button:hover { " +
+        "-fx-background-color: #404040; " +
+        "} " +
+        ".danger-button { " +
+        "-fx-background-color: #E22134; " +
+        "-fx-text-fill: white; " +
+        "-fx-font-weight: bold; " +
+        "-fx-background-radius: 4px; " +
+        "-fx-padding: 8px 16px; " +
+        "} " +
+        ".content-panel { " +
+        "-fx-background-color: #191414; " +
+        "-fx-padding: 20px; " +
+        "} " +
+        ".section-title { " +
+        "-fx-font-size: 20px; " +
+        "-fx-font-weight: bold; " +
+        "-fx-text-fill: white; " +
+        "} " +
+        ".section-subtitle { " +
+        "-fx-font-size: 14px; " +
+        "-fx-text-fill: #B3B3B3; " +
+        "} " +
+        ".field-label { " +
+        "-fx-text-fill: white; " +
+        "-fx-font-size: 12px; " +
+        "} " +
+        ".success-message { " +
+        "-fx-text-fill: #1DB954; " +
+        "-fx-font-size: 12px; " +
+        "} " +
+        ".metric-card { " +
+        "-fx-background-color: #282828; " +
+        "-fx-background-radius: 8px; " +
+        "-fx-padding: 20px; " +
+        "-fx-min-width: 120px; " +
+        "} " +
+        ".metric-number { " +
+        "-fx-font-size: 32px; " +
+        "-fx-font-weight: bold; " +
+        "-fx-text-fill: #1DB954; " +
+        "} " +
+        ".metric-label { " +
+        "-fx-font-size: 12px; " +
+        "-fx-text-fill: #B3B3B3; " +
+        "} " +
+        ".table-view { " +
+        "-fx-background-color: #191414; " +
+        "} " +
+        ".table-view .column-header-background { " +
+        "-fx-background-color: #282828; " +
+        "} " +
+        ".table-view .column-header { " +
+        "-fx-background-color: transparent; " +
+        "-fx-text-fill: white; " +
+        "-fx-font-weight: bold; " +
+        "} " +
+        ".table-view .table-cell { " +
+        "-fx-background-color: #191414; " +
+        "-fx-text-fill: #B3B3B3; " +
+        "-fx-border-color: transparent; " +
+        "} " +
+        ".table-row-cell:selected { " +
+        "-fx-background-color: #1DB954; " +
+        "} " +
+        ".tab-pane { " +
+        "-fx-tab-min-height: 40px; " +
+        "} " +
+        ".tab { " +
+        "-fx-background-color: #282828; " +
+        "-fx-text-fill: #B3B3B3; " +
+        "-fx-font-weight: bold; " +
+        "} " +
+        ".tab:selected { " +
+        "-fx-background-color: #1DB954; " +
+        "-fx-text-fill: white; " +
+        "}";
     
     /**
-     * Aplica el tema Spotify completo a una escena.
+     * Aplica el tema principal de Spotify a una escena.
      * 
      * @param scene Escena a la que aplicar el tema
      */
     public static void applySpotifyTheme(Scene scene) {
         if (scene == null) {
-            System.err.println("Scene es null, no se puede aplicar el tema");
+            System.err.println("Error: Scene es null, no se pueden aplicar estilos");
             return;
         }
         
         try {
-            // Limpiar estilos existentes
-            scene.getStylesheets().clear();
-            
-            // Aplicar hojas de estilo en orden
-            applyStylesheet(scene, SPOTIFY_THEME_CSS);
-            applyStylesheet(scene, COMPONENTS_CSS);
-            applyStylesheet(scene, ANIMATIONS_CSS);
-            
-            System.out.println("Tema Spotify aplicado exitosamente");
-            
+            // Intentar cargar CSS desde archivo
+            String styleURL = StyleManager.class.getResource(MAIN_STYLESHEET) != null ? 
+                            StyleManager.class.getResource(MAIN_STYLESHEET).toExternalForm() : null;
+            if (styleURL != null) {
+                scene.getStylesheets().add(styleURL);
+                System.out.println("Aplicado: " + MAIN_STYLESHEET);
+            } else {
+                // Usar CSS embebido como fallback
+                applyEmbeddedCSS(scene);
+                System.out.println("No se encontró " + MAIN_STYLESHEET + " - usando estilos por defecto");
+            }
         } catch (Exception e) {
-            System.err.println("Error aplicando tema Spotify: " + e.getMessage());
-            // Aplicar estilos por defecto en caso de error
-            applyDefaultStyles(scene);
+            // En caso de error, aplicar CSS embebido
+            applyEmbeddedCSS(scene);
+            System.err.println("Error cargando " + MAIN_STYLESHEET + ": " + e.getMessage());
         }
     }
     
     /**
-     * Aplica una hoja de estilos específica a la escena.
+     * Aplica CSS embebido directamente a la escena.
      * 
      * @param scene Escena objetivo
-     * @param stylesheetPath Ruta de la hoja de estilos
      */
-    private static void applyStylesheet(Scene scene, String stylesheetPath) {
+    private static void applyEmbeddedCSS(Scene scene) {
         try {
-            String styleURL = StyleManager.class.getResource(stylesheetPath)?.toExternalForm();
-            if (styleURL != null) {
-                scene.getStylesheets().add(styleURL);
-                System.out.println("Aplicado: " + stylesheetPath);
-            } else {
-                System.out.println("No se encontró: " + stylesheetPath + " (se usarán estilos por defecto)");
-            }
+            scene.getRoot().setStyle(DEFAULT_CSS);
         } catch (Exception e) {
-            System.err.println("Error cargando " + stylesheetPath + ": " + e.getMessage());
+            System.err.println("Error aplicando CSS embebido: " + e.getMessage());
         }
     }
     
     /**
      * Aplica estilos por defecto cuando no se pueden cargar los archivos CSS.
      * 
-     * @param scene Escena a la que aplicar estilos por defecto
+     * @param scene Escena objetivo  
      */
-    private static void applyDefaultStyles(Scene scene) {
-        String defaultStyles = generateDefaultSpotifyCSS();
+    public static void applyDefaultStyles(Scene scene) {
+        if (scene == null) return;
         
-        // Crear un archivo CSS temporal en memoria
+        // Estilo mínimo para que la aplicación se vea decente
+        String minimalCSS = 
+            "-fx-background-color: #191414; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-family: 'Arial';";
+            
         try {
-            scene.getRoot().setStyle(
-                "-fx-background-color: #191414;" +
-                "-fx-text-fill: white;"
-            );
+            scene.getRoot().setStyle(minimalCSS);
             System.out.println("Estilos por defecto aplicados");
         } catch (Exception e) {
             System.err.println("Error aplicando estilos por defecto: " + e.getMessage());
         }
-    }
-    
-    /**
-     * Genera CSS por defecto con el tema Spotify.
-     * 
-     * @return String con CSS por defecto
-     */
-    private static String generateDefaultSpotifyCSS() {
-        return """
-            /* Colores principales de Spotify */
-            .root {
-                -fx-base: #191414;
-                -fx-background: #191414;
-                -fx-control-inner-background: #282828;
-                -fx-control-inner-background-alt: #3E3E3E;
-                -fx-accent: #1DB954;
-                -fx-default-button: #1DB954;
-                -fx-focus-color: #1DB954;
-                -fx-faint-focus-color: #1DB95422;
-            }
-            
-            /* Texto */
-            .label {
-                -fx-text-fill: #FFFFFF;
-            }
-            
-            .label:disabled {
-                -fx-text-fill: #B3B3B3;
-            }
-            
-            /* Botones */
-            .button {
-                -fx-background-color: transparent;
-                -fx-text-fill: #FFFFFF;
-                -fx-border-color: #1DB954;
-                -fx-border-width: 1px;
-                -fx-border-radius: 20px;
-                -fx-background-radius: 20px;
-                -fx-padding: 8 16 8 16;
-                -fx-font-size: 14px;
-                -fx-font-weight: bold;
-            }
-            
-            .button:hover {
-                -fx-background-color: #1DB954;
-                -fx-scale-x: 1.05;
-                -fx-scale-y: 1.05;
-            }
-            
-            .button:pressed {
-                -fx-background-color: #1ED760;
-            }
-            
-            /* Campos de texto */
-            .text-field {
-                -fx-background-color: #3E3E3E;
-                -fx-text-fill: #FFFFFF;
-                -fx-prompt-text-fill: #B3B3B3;
-                -fx-border-color: transparent;
-                -fx-border-radius: 4px;
-                -fx-background-radius: 4px;
-                -fx-padding: 8;
-            }
-            
-            .text-field:focused {
-                -fx-border-color: #1DB954;
-                -fx-border-width: 2px;
-            }
-            
-            /* ListView */
-            .list-view {
-                -fx-background-color: transparent;
-                -fx-border-color: transparent;
-            }
-            
-            .list-cell {
-                -fx-background-color: transparent;
-                -fx-text-fill: #FFFFFF;
-                -fx-padding: 8;
-            }
-            
-            .list-cell:selected {
-                -fx-background-color: #1DB954;
-                -fx-text-fill: #000000;
-            }
-            
-            .list-cell:hover {
-                -fx-background-color: #282828;
-            }
-            """;
     }
     
     /**
@@ -196,35 +238,5 @@ public class StyleManager {
      */
     public static String getSpotifyBlack() {
         return "#191414";
-    }
-    
-    /**
-     * Obtiene el color gris de Spotify.
-     * 
-     * @return Color gris de Spotify (#282828)
-     */
-    public static String getSpotifyGray() {
-        return "#282828";
-    }
-    
-    /**
-     * Obtiene el color de texto principal.
-     * 
-     * @return Color blanco (#FFFFFF)
-     */
-    public static String getSpotifyWhite() {
-        return "#FFFFFF";
-    }
-    
-    /**
-     * Obtiene el color de texto secundario.
-     * 
-     * @return Color gris claro (#B3B3B3)
-     */
-    public static String getSpotifyLightGray() {
-        return "#B3B3B3";
-    }
-}
-""";
     }
 }

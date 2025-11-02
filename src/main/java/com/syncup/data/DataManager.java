@@ -52,11 +52,12 @@ public class DataManager {
 
     private void createDefaultUsers() {
         if (usuariosByUsername.get(ADMIN_USERNAME) == null) {
-            Admin a = new Admin(ADMIN_USERNAME, ADMIN_PASSWORD);
-            a.setNombreCompleto("Administrador del Sistema");
-            a.setEmail("admin@syncup.com");
-            a.setEsAdmin(true);
-            addUsuario(a);
+            // Crear usuario admin normal y luego convertir a admin
+            Usuario adminUser = new Usuario(ADMIN_USERNAME, ADMIN_PASSWORD);
+            adminUser.setNombreCompleto("Administrador del Sistema");
+            adminUser.setEmail("admin@syncup.com");
+            adminUser.setEsAdmin(true);
+            addUsuario(adminUser);
         }
         if (usuariosByUsername.get(DEMO_USERNAME) == null) {
             Usuario u = new Usuario(DEMO_USERNAME, DEMO_PASSWORD);
@@ -71,7 +72,9 @@ public class DataManager {
         Object[][] sample = {
             {"Bohemian Rhapsody","Queen","A Night at the Opera","Rock",1975,355},
             {"Imagine","John Lennon","Imagine","Rock",1971,183},
-            {"Billie Jean","Michael Jackson","Thriller","Pop",1983,294}
+            {"Billie Jean","Michael Jackson","Thriller","Pop",1983,294},
+            {"Hotel California","Eagles","Hotel California","Rock",1976,391},
+            {"Sweet Child O Mine","Guns N Roses","Appetite for Destruction","Rock",1987,356}
         };
         for (Object[] s : sample) {
             Cancion c = new Cancion((String)s[0], (String)s[1], (String)s[3], (Integer)s[4]);

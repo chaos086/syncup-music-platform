@@ -8,9 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
 
 import com.syncup.models.Usuario;
 import com.syncup.models.Cancion;
@@ -22,6 +19,7 @@ import com.syncup.structures.GrafoSocial;
 
 import java.net.URL;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.io.File;
 
@@ -63,12 +61,13 @@ public class UserDashboardController implements Initializable {
     @FXML private Button generateDiscoveryButton;
     @FXML private Button addToFavoritesButton;
     
-    // Componentes de radio personalizada
-    @FXML private ComboBox<Cancion> seedSongComboBox;
-    @FXML private TableView<Cancion> radioTable;
-    @FXML private TableColumn<Cancion, String> radioTitleColumn;
-    @FXML private TableColumn<Cancion, String> radioArtistColumn;
-    @FXML private Button generateRadioButton;
+    // Componentes de búsqueda
+    @FXML private TextField searchField;
+    @FXML private ComboBox<String> searchTypeComboBox;
+    @FXML private TableView<Cancion> searchResultsTable;
+    @FXML private TableColumn<Cancion, String> searchTitleColumn;
+    @FXML private TableColumn<Cancion, String> searchArtistColumn;
+    @FXML private Button searchButton;
     
     // Componentes sociales
     @FXML private TableView<Usuario> followingTable;
@@ -80,14 +79,6 @@ public class UserDashboardController implements Initializable {
     @FXML private Button followUserButton;
     @FXML private Button unfollowUserButton;
     @FXML private Button refreshSuggestionsButton;
-    
-    // Componentes de búsqueda
-    @FXML private TextField searchField;
-    @FXML private ComboBox<String> searchTypeComboBox;
-    @FXML private TableView<Cancion> searchResultsTable;
-    @FXML private TableColumn<Cancion, String> searchTitleColumn;
-    @FXML private TableColumn<Cancion, String> searchArtistColumn;
-    @FXML private Button searchButton;
     
     // Componentes de estado
     @FXML private Label statusLabel;
@@ -139,10 +130,6 @@ public class UserDashboardController implements Initializable {
         if (discTitleColumn != null) discTitleColumn.setCellValueFactory(new PropertyValueFactory<>("titulo"));
         if (discArtistColumn != null) discArtistColumn.setCellValueFactory(new PropertyValueFactory<>("artista"));
         if (discGenreColumn != null) discGenreColumn.setCellValueFactory(new PropertyValueFactory<>("genero"));
-        
-        // Tabla de radio
-        if (radioTitleColumn != null) radioTitleColumn.setCellValueFactory(new PropertyValueFactory<>("titulo"));
-        if (radioArtistColumn != null) radioArtistColumn.setCellValueFactory(new PropertyValueFactory<>("artista"));
         
         // Tabla de seguidos
         if (followingUsernameColumn != null) followingUsernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -201,8 +188,6 @@ public class UserDashboardController implements Initializable {
                 
                 autoCompleteTask.setOnSucceeded(e -> {
                     List<String> sugerencias = autoCompleteTask.getValue();
-                    // Aquí se implementaría el popup de autocompletado
-                    // Por simplicidad, se muestra en el status
                     if (!sugerencias.isEmpty()) {
                         mostrarStatus("Sugerencias: " + String.join(", ", sugerencias.subList(0, Math.min(3, sugerencias.size()))));
                     }
@@ -215,16 +200,10 @@ public class UserDashboardController implements Initializable {
     
     /**
      * Establece el usuario actual y actualiza la interfaz.
-     * 
-     * @param usuario Usuario logueado
      */
     public void setCurrentUser(Usuario usuario) {
         this.currentUser = usuario;
-        
-        // Actualizar datos del usuario en la interfaz
         actualizarDatosUsuario();
-        
-        // Cargar datos iniciales
         cargarFavoritos();
         cargarSeguidos();
         cargarSugerenciasUsuarios();
@@ -232,9 +211,6 @@ public class UserDashboardController implements Initializable {
         System.out.println("Usuario establecido en dashboard: " + usuario.getUsername());
     }
     
-    /**
-     * RF-002: Actualiza los datos del usuario en la interfaz.
-     */
     private void actualizarDatosUsuario() {
         if (currentUser == null) return;
         
@@ -261,26 +237,19 @@ public class UserDashboardController implements Initializable {
         });
     }
     
-    /**
-     * RF-002: Maneja la actualización del perfil de usuario.
-     */
     @FXML
     private void handleSaveProfile() {
         if (currentUser == null) return;
         
         try {
-            // Actualizar datos del usuario
             if (nombreCompletoField != null) {
                 currentUser.setNombreCompleto(nombreCompletoField.getText().trim());
             }
-            
             if (emailField != null) {
                 currentUser.setEmail(emailField.getText().trim());
             }
             
-            // Guardar cambios
             dataManager.saveAllData();
-            
             mostrarStatus("Perfil actualizado correctamente");
             actualizarDatosUsuario();
             
@@ -289,9 +258,6 @@ public class UserDashboardController implements Initializable {
         }
     }
     
-    /**
-     * RF-002: Carga las canciones favoritas del usuario.
-     */
     private void cargarFavoritos() {
         if (currentUser == null || favoritesTable == null) return;
         
@@ -317,9 +283,6 @@ public class UserDashboardController implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * RF-005: Genera playlist "Descubrimiento Semanal".
-     */
     @FXML
     private void handleGenerateDiscovery() {
         if (currentUser == null || discoveryTable == null) return;
@@ -343,61 +306,9 @@ public class UserDashboardController implements Initializable {
             });
         });
         
-        task.setOnFailed(e -> {
-            Platform.runLater(() -> {
-                mostrarError("Error generando descubrimiento: " + task.getException().getMessage());
-                mostrarCargando(false);
-            });
-        });
-        
         new Thread(task).start();
     }
     
-    /**
-     * RF-006: Genera radio personalizada basada en canción semilla.
-     */
-    @FXML
-    private void handleGenerateRadio() {
-        if (currentUser == null || seedSongComboBox == null || radioTable == null) return;
-        
-        Cancion cancionSemilla = seedSongComboBox.getValue();
-        if (cancionSemilla == null) {
-            mostrarError("Selecciona una canción para crear la radio");
-            return;
-        }
-        
-        mostrarCargando(true);
-        mostrarStatus("Creando radio basada en: " + cancionSemilla.getTitulo());
-        
-        Task<List<Cancion>> task = new Task<List<Cancion>>() {
-            @Override
-            protected List<Cancion> call() {
-                return recommendationEngine.generarRadioPersonalizada(currentUser.getId(), cancionSemilla, 25);
-            }
-        };
-        
-        task.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                List<Cancion> radioPlaylist = task.getValue();
-                radioTable.setItems(FXCollections.observableArrayList(radioPlaylist));
-                mostrarStatus("Radio generada: " + radioPlaylist.size() + " canciones");
-                mostrarCargando(false);
-            });
-        });
-        
-        task.setOnFailed(e -> {
-            Platform.runLater(() -> {
-                mostrarError("Error generando radio: " + task.getException().getMessage());
-                mostrarCargando(false);
-            });
-        });
-        
-        new Thread(task).start();
-    }
-    
-    /**
-     * RF-007: Maneja seguir a un usuario.
-     */
     @FXML
     private void handleFollowUser() {
         if (currentUser == null || suggestedUsersTable == null) return;
@@ -412,13 +323,7 @@ public class UserDashboardController implements Initializable {
             boolean seguido = currentUser.seguirUsuario(usuarioParaSeguir.getId());
             if (seguido) {
                 usuarioParaSeguir.agregarSeguidor(currentUser.getId());
-                
-                // Actualizar grafo social
-                if (usuarioParaSeguir.getUsuariosSeguidos().contains(currentUser.getId())) {
-                    // Seguimiento mutuo - crear conexión en grafo social
-                    grafoSocial.conectarUsuarios(currentUser.getId(), usuarioParaSeguir.getId());
-                }
-                
+                grafoSocial.conectarUsuarios(currentUser.getId(), usuarioParaSeguir.getId());
                 dataManager.saveAllData();
                 
                 mostrarStatus("Ahora sigues a " + usuarioParaSeguir.getUsername());
@@ -426,81 +331,13 @@ public class UserDashboardController implements Initializable {
                 cargarSeguidos();
                 cargarSugerenciasUsuarios();
             } else {
-                mostrarError("No se pudo seguir al usuario (ya lo seguías o error)");
+                mostrarError("No se pudo seguir al usuario");
             }
         } catch (Exception e) {
             mostrarError("Error siguiendo usuario: " + e.getMessage());
         }
     }
     
-    /**
-     * RF-007: Maneja dejar de seguir a un usuario.
-     */
-    @FXML
-    private void handleUnfollowUser() {
-        if (currentUser == null || followingTable == null) return;
-        
-        Usuario usuarioParaDejarDeSeguir = followingTable.getSelectionModel().getSelectedItem();
-        if (usuarioParaDejarDeSeguir == null) {
-            mostrarError("Selecciona un usuario para dejar de seguir");
-            return;
-        }
-        
-        try {
-            boolean dejadoDeSeguir = currentUser.dejarDeSeguir(usuarioParaDejarDeSeguir.getId());
-            if (dejadoDeSeguir) {
-                usuarioParaDejarDeSeguir.removerSeguidor(currentUser.getId());
-                
-                // Actualizar grafo social
-                grafoSocial.desconectarUsuarios(currentUser.getId(), usuarioParaDejarDeSeguir.getId());
-                
-                dataManager.saveAllData();
-                
-                mostrarStatus("Ya no sigues a " + usuarioParaDejarDeSeguir.getUsername());
-                actualizarDatosUsuario();
-                cargarSeguidos();
-                cargarSugerenciasUsuarios();
-            } else {
-                mostrarError("No se pudo dejar de seguir al usuario");
-            }
-        } catch (Exception e) {
-            mostrarError("Error dejando de seguir usuario: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * RF-008: Carga sugerencias de usuarios usando el grafo social.
-     */
-    private void cargarSugerenciasUsuarios() {
-        if (currentUser == null || suggestedUsersTable == null) return;
-        
-        Task<ObservableList<Usuario>> task = new Task<ObservableList<Usuario>>() {
-            @Override
-            protected ObservableList<Usuario> call() {
-                // Agregar usuario actual al grafo social si no está
-                grafoSocial.agregarUsuario(currentUser);
-                
-                // Sincronizar grafo con datos de seguimiento
-                grafoSocial.sincronizarConUsuarios();
-                
-                // RF-008: Obtener sugerencias usando BFS (amigos de amigos)
-                List<Usuario> sugerencias = grafoSocial.obtenerSugerenciasUsuarios(currentUser.getId(), 10);
-                
-                return FXCollections.observableArrayList(sugerencias);
-            }
-        };
-        
-        task.setOnSucceeded(e -> {
-            suggestedUsersTable.setItems(task.getValue());
-            mostrarStatus("Sugerencias actualizadas: " + task.getValue().size() + " usuarios");
-        });
-        
-        new Thread(task).start();
-    }
-    
-    /**
-     * Carga la lista de usuarios seguidos.
-     */
     private void cargarSeguidos() {
         if (currentUser == null || followingTable == null) return;
         
@@ -522,26 +359,79 @@ public class UserDashboardController implements Initializable {
         new Thread(task).start();
     }
     
-    /**
-     * RF-008: Actualiza sugerencias de usuarios.
-     */
+    private void cargarSugerenciasUsuarios() {
+        if (currentUser == null || suggestedUsersTable == null) return;
+        
+        Task<ObservableList<Usuario>> task = new Task<ObservableList<Usuario>>() {
+            @Override
+            protected ObservableList<Usuario> call() {
+                grafoSocial.agregarUsuario(currentUser);
+                // Simplificado: sugerir usuarios aleatorios por ahora
+                List<Usuario> todosUsuarios = dataManager.getAllUsuarios();
+                List<Usuario> sugerencias = new ArrayList<>();
+                
+                for (Usuario u : todosUsuarios) {
+                    if (!u.getId().equals(currentUser.getId()) && 
+                        !currentUser.getUsuariosSeguidos().contains(u.getId()) &&
+                        sugerencias.size() < 10) {
+                        sugerencias.add(u);
+                    }
+                }
+                
+                return FXCollections.observableArrayList(sugerencias);
+            }
+        };
+        
+        task.setOnSucceeded(e -> {
+            suggestedUsersTable.setItems(task.getValue());
+            mostrarStatus("Sugerencias actualizadas: " + task.getValue().size() + " usuarios");
+        });
+        
+        new Thread(task).start();
+    }
+    
     @FXML
     private void handleRefreshSuggestions() {
         cargarSugerenciasUsuarios();
     }
     
-    /**
-     * Agrega canción seleccionada a favoritos.
-     */
+    @FXML
+    private void handleSearch() {
+        if (searchField == null || searchResultsTable == null) return;
+        
+        String termino = searchField.getText().trim();
+        if (termino.isEmpty()) {
+            mostrarError("Ingresa un término de búsqueda");
+            return;
+        }
+        
+        mostrarCargando(true);
+        
+        Task<List<Cancion>> task = new Task<List<Cancion>>() {
+            @Override
+            protected List<Cancion> call() {
+                return searchService.busquedaSimple(termino);
+            }
+        };
+        
+        task.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                List<Cancion> resultados = task.getValue();
+                searchResultsTable.setItems(FXCollections.observableArrayList(resultados));
+                mostrarStatus("Búsqueda completada: " + resultados.size() + " resultados");
+                mostrarCargando(false);
+            });
+        });
+        
+        new Thread(task).start();
+    }
+    
     @FXML
     private void handleAddToFavorites() {
         TableView<Cancion> tablaActiva = null;
         
-        // Determinar qué tabla tiene selección
         if (discoveryTable != null && discoveryTable.getSelectionModel().getSelectedItem() != null) {
             tablaActiva = discoveryTable;
-        } else if (radioTable != null && radioTable.getSelectionModel().getSelectedItem() != null) {
-            tablaActiva = radioTable;
         } else if (searchResultsTable != null && searchResultsTable.getSelectionModel().getSelectedItem() != null) {
             tablaActiva = searchResultsTable;
         }
@@ -568,9 +458,6 @@ public class UserDashboardController implements Initializable {
         }
     }
     
-    /**
-     * RF-002: Remueve canción seleccionada de favoritos.
-     */
     @FXML
     private void handleRemoveFavorite() {
         if (currentUser == null || favoritesTable == null) return;
@@ -588,17 +475,12 @@ public class UserDashboardController implements Initializable {
                 mostrarStatus("\"" + cancionSeleccionada.getTitulo() + "\" removida de favoritos");
                 actualizarDatosUsuario();
                 cargarFavoritos();
-            } else {
-                mostrarError("No se pudo remover la canción de favoritos");
             }
         } catch (Exception e) {
             mostrarError("Error removiendo de favoritos: " + e.getMessage());
         }
     }
     
-    /**
-     * RF-009: Exporta favoritos del usuario a CSV.
-     */
     @FXML
     private void handleExportFavorites() {
         if (currentUser == null) return;
@@ -625,98 +507,33 @@ public class UserDashboardController implements Initializable {
             });
         });
         
-        task.setOnFailed(e -> {
-            Platform.runLater(() -> {
-                mostrarError("Error en exportación: " + task.getException().getMessage());
-                mostrarCargando(false);
-            });
-        });
-        
         new Thread(task).start();
     }
     
-    /**
-     * Maneja la búsqueda de canciones.
-     */
-    @FXML
-    private void handleSearch() {
-        if (searchField == null || searchResultsTable == null) return;
-        
-        String termino = searchField.getText().trim();
-        if (termino.isEmpty()) {
-            mostrarError("Ingresa un término de búsqueda");
-            return;
-        }
-        
-        mostrarCargando(true);
-        mostrarStatus("Buscando: " + termino);
-        
-        Task<List<Cancion>> task = new Task<List<Cancion>>() {
-            @Override
-            protected List<Cancion> call() {
-                return searchService.busquedaSimple(termino);
-            }
-        };
-        
-        task.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                List<Cancion> resultados = task.getValue();
-                searchResultsTable.setItems(FXCollections.observableArrayList(resultados));
-                mostrarStatus("Búsqueda completada: " + resultados.size() + " resultados");
-                mostrarCargando(false);
-            });
-        });
-        
-        new Thread(task).start();
-    }
-    
-    /**
-     * Muestra mensaje de estado.
-     * 
-     * @param mensaje Mensaje a mostrar
-     */
+    // Métodos de utilidad
     private void mostrarStatus(String mensaje) {
         Platform.runLater(() -> {
             if (statusLabel != null) {
                 statusLabel.setText(mensaje);
-                statusLabel.setStyle("-fx-text-fill: #1DB954;"); // Verde Spotify
+                statusLabel.setStyle("-fx-text-fill: #1DB954;");
             }
         });
     }
     
-    /**
-     * Muestra mensaje de error.
-     * 
-     * @param mensaje Mensaje de error
-     */
     private void mostrarError(String mensaje) {
         Platform.runLater(() -> {
             if (statusLabel != null) {
                 statusLabel.setText("Error: " + mensaje);
-                statusLabel.setStyle("-fx-text-fill: #FF6B6B;"); // Rojo error
+                statusLabel.setStyle("-fx-text-fill: #FF6B6B;");
             }
         });
     }
     
-    /**
-     * Controla la visibilidad del indicador de carga.
-     * 
-     * @param mostrar true para mostrar, false para ocultar
-     */
     private void mostrarCargando(boolean mostrar) {
         Platform.runLater(() -> {
             if (loadingIndicator != null) {
                 loadingIndicator.setVisible(mostrar);
             }
         });
-    }
-    
-    /**
-     * Limpia los recursos al cerrar el controlador.
-     */
-    public void cleanup() {
-        if (searchService != null) {
-            searchService.cerrarServicio();
-        }
     }
 }

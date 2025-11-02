@@ -8,6 +8,7 @@ import java.util.Objects;
 /**
  * Clase que representa un usuario del sistema SyncUp.
  * Implementa funcionalidades para gestión de perfil, favoritos y red social.
+ * RF-015, RF-016, RF-017: equals y hashCode basados en username para indexación eficiente.
  * 
  * @author Alejandro Marín Hernández
  * @version 1.0
@@ -18,7 +19,7 @@ public class Usuario {
     /** Identificador único del usuario */
     private String id;
     
-    /** Nombre de usuario */
+    /** Nombre de usuario - usado para equals y hashCode (RF-017) */
     private String username;
     
     /** Contraseña del usuario (hash) */
@@ -314,17 +315,28 @@ public class Usuario {
         this.esAdmin = esAdmin;
     }
     
+    /**
+     * RF-017: equals basado en username para indexación en HashMap.
+     * 
+     * @param o Objeto a comparar
+     * @return true si son iguales por username
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Usuario usuario = (Usuario) o;
-        return Objects.equals(id, usuario.id);
+        return Objects.equals(username, usuario.username);
     }
     
+    /**
+     * RF-017: hashCode basado en username para indexación eficiente en HashMap.
+     * 
+     * @return Hash del username
+     */
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(username);
     }
     
     @Override

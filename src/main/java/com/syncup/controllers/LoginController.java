@@ -1,5 +1,6 @@
 package com.syncup.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -45,6 +46,11 @@ public class LoginController implements Initializable {
         Usuario usuario = dataManager.authenticateUser(username, password);
         if (usuario != null) { hideError(); navigateToMainApp(usuario); }
         else { showError("Usuario o contraseña incorrectos"); }
+    }
+
+    // Nuevo: para que el FXML no falle si existe botón de registro
+    @FXML private void handleRegister(ActionEvent e) {
+        showError("Registro no implementado aún. Usa demo_user/demo123 o admin/admin123");
     }
 
     @FXML private void handleDemoLogin() { usernameField.setText("demo_user"); passwordField.setText("demo123"); handleLogin(); }

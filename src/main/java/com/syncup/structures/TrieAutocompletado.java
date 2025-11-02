@@ -1,6 +1,11 @@
 package com.syncup.structures;
 
 import java.util.*;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 
 /**
  * Implementación de Trie para autocompletado eficiente.

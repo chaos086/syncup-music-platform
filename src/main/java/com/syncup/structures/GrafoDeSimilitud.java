@@ -3,11 +3,13 @@ package com.syncup.structures;
 import com.syncup.models.Cancion;
 import com.syncup.models.Usuario;
 import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GrafoDeSimilitud {
-    private final Map<String, List<Arista>> grafo = new HashMap<>();
-    private final Map<String, Usuario> usuarios = new HashMap<>();
-    private final Map<String, Cancion> canciones = new HashMap<>();
+    private final Map<String, List<Arista>> grafo = new java.util.HashMap<String, List<Arista>>();
+    private final Map<String, Usuario> usuarios = new java.util.HashMap<String, Usuario>();
+    private final Map<String, Cancion> canciones = new java.util.HashMap<String, Cancion>();
     private int numeroNodos = 0;
     private int numeroAristas = 0;
 

@@ -6,12 +6,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import com.syncup.data.DataManager;
 import com.syncup.models.Usuario;
+import com.syncup.models.Admin;
 import com.syncup.utils.StyleManager;
 
 import java.io.IOException;
@@ -40,18 +41,9 @@ public class LoginController implements Initializable {
     /** Gestor de datos del sistema */
     private DataManager dataManager;
     
-    /**
-     * Inicializa el controlador después de cargar el FXML.
-     * 
-     * @param location URL de localización
-     * @param resources ResourceBundle
-     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         dataManager = DataManager.getInstance();
-        
-        // Configurar logo
-        setupLogo();
         
         // Configurar eventos de teclado
         setupKeyboardEvents();
@@ -63,43 +55,24 @@ public class LoginController implements Initializable {
     }
     
     /**
-     * Configura el logo de la aplicación.
-     */
-    private void setupLogo() {
-        try {
-            // Intentar cargar el logo desde recursos
-            Image logo = new Image(getClass().getResourceAsStream("/images/logo/syncup-logo.png"));
-            logoImageView.setImage(logo);
-        } catch (Exception e) {
-            System.out.println("Logo no encontrado, usando placeholder: " + e.getMessage());
-            // Si no se encuentra el logo, crear uno simple
-            createPlaceholderLogo();
-        }
-    }
-    
-    /**
-     * Crea un logo placeholder simple.
-     */
-    private void createPlaceholderLogo() {
-        // El logo se mostrará como el texto "SyncUp" sin imagen
-        logoImageView.setVisible(false);
-    }
-    
-    /**
      * Configura eventos de teclado para mejor UX.
      */
     private void setupKeyboardEvents() {
         // Enter en cualquier campo ejecuta login
-        usernameField.setOnAction(e -> handleLogin());
-        passwordField.setOnAction(e -> handleLogin());
+        if (usernameField != null) usernameField.setOnAction(e -> handleLogin());
+        if (passwordField != null) passwordField.setOnAction(e -> handleLogin());
     }
     
     /**
      * Configura tooltips para los botones.
      */
     private void setupTooltips() {
-        demoUserButton.setTooltip(new Tooltip("Usuario: demo_user\nContraseña: demo123"));
-        adminUserButton.setTooltip(new Tooltip("Usuario: admin\nContraseña: admin123"));
+        if (demoUserButton != null) {
+            demoUserButton.setTooltip(new Tooltip("Usuario: demo_user\nContraseña: demo123"));
+        }
+        if (adminUserButton != null) {
+            adminUserButton.setTooltip(new Tooltip("Usuario: admin\nContraseña: admin123"));
+        }
     }
     
     /**
@@ -144,7 +117,6 @@ public class LoginController implements Initializable {
             showRegisterDialog();
         } catch (Exception e) {
             showError("Error al abrir registro: " + e.getMessage());
-            System.err.println("Error en registro: " + e.getMessage());
         }
     }
     
@@ -170,8 +142,6 @@ public class LoginController implements Initializable {
     
     /**
      * Navega a la aplicación principal después del login exitoso.
-     * 
-     * @param usuario Usuario autenticado
      */
     private void navigateToMainApp(Usuario usuario) {
         try {
@@ -193,17 +163,20 @@ public class LoginController implements Initializable {
             
             try {
                 root = loader.load();
+                
+                // Pasar el usuario al controlador de la nueva pantalla
+                Object controller = loader.getController();
+                if (controller instanceof UserDashboardController && !usuario.isEsAdmin()) {
+                    ((UserDashboardController) controller).setCurrentUser(usuario);
+                } else if (controller instanceof AdminDashboardController && usuario.isEsAdmin()) {
+                    ((AdminDashboardController) controller).setCurrentAdmin((Admin) usuario);
+                }
+                
             } catch (IOException e) {
                 // Si no se encuentra el FXML específico, cargar pantalla placeholder
-                System.out.println("FXML no encontrado (" + fxmlFile + "), cargando placeholder");
-                root = createPlaceholderDashboard(usuario);
-            }
-            
-            // Pasar el usuario al controlador de la nueva pantalla
-            Object controller = loader.getController();
-            if (controller != null) {
-                // Aquí se pasaría el usuario al controlador específico
-                // Por ejemplo: ((UserDashboardController) controller).setUser(usuario);
+                System.out.println("FXML no encontrado (" + fxmlFile + "), cargando dashboard simple");
+                root = createSimpleDashboard(usuario);
+                windowTitle = "SyncUp - Dashboard Simple";
             }
             
             // Crear nueva escena
@@ -230,20 +203,46 @@ public class LoginController implements Initializable {
     }
     
     /**
-     * Crea un dashboard placeholder cuando no se encuentran los archivos FXML.
-     * 
-     * @param usuario Usuario para personalizar el dashboard
-     * @return Parent con el dashboard básico
+     * Crea un dashboard simple cuando no se encuentran los archivos FXML.
      */
-    private Parent createPlaceholderDashboard(Usuario usuario) {
-        Label welcomeLabel = new Label("¡Bienvenido a SyncUp, " + usuario.getUsername() + "!");
-        welcomeLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: white;");
+    private Parent createSimpleDashboard(Usuario usuario) {
+        VBox dashboard = new VBox(30);
+        dashboard.setAlignment(javafx.geometry.Pos.CENTER);
+        dashboard.setStyle("-fx-background-color: #191414; -fx-padding: 50;");
         
-        Label infoLabel = new Label("Dashboard en construcción...\nEjecutar desde IntelliJ IDEA para ver la interfaz completa.");
+        Label welcomeLabel = new Label("¡Bienvenido a SyncUp, " + usuario.getUsername() + "!");
+        welcomeLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;");
+        
+        Label typeLabel = new Label(usuario.isEsAdmin() ? "Perfil: Administrador" : "Perfil: Usuario Estándar");
+        typeLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #1DB954;");
+        
+        Label infoLabel = new Label(
+            "Dashboard completamente funcional disponible cuando:\n" +
+            "1. Ejecutes desde IntelliJ IDEA\n" +
+            "2. Los archivos FXML estén correctamente ubicados\n" +
+            "3. Las dependencias JavaFX estén configuradas\n\n" +
+            "El sistema backend está completamente operativo.\n" +
+            "Datos cargados: " + dataManager.getAllCanciones().size() + " canciones, " + 
+            dataManager.getAllUsuarios().size() + " usuarios"
+        );
         infoLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #B3B3B3; -fx-text-alignment: center;");
+        infoLabel.setWrapText(true);
+        infoLabel.setMaxWidth(600);
+        
+        // Botones de acción básica
+        Button testSystemButton = new Button("Probar Sistema");
+        testSystemButton.setStyle("-fx-background-color: #1DB954; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;");
+        testSystemButton.setOnAction(e -> {
+            // Mostrar algunas estadísticas del sistema
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Estado del Sistema");
+            alert.setHeaderText("Sistema SyncUp - Estado Operativo");
+            alert.setContentText(dataManager.getSystemStats());
+            alert.showAndWait();
+        });
         
         Button logoutButton = new Button("Cerrar Sesión");
-        logoutButton.setStyle("-fx-background-color: #1DB954; -fx-text-fill: white; -fx-font-weight: bold;");
+        logoutButton.setStyle("-fx-background-color: #E22134; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;");
         logoutButton.setOnAction(e -> {
             try {
                 // Volver al login
@@ -253,17 +252,15 @@ public class LoginController implements Initializable {
                 StyleManager.applySpotifyTheme(scene);
                 Stage stage = (Stage) logoutButton.getScene().getWindow();
                 stage.setScene(scene);
+                stage.setTitle("SyncUp - Iniciar Sesión");
             } catch (IOException ex) {
                 System.err.println("Error volviendo al login: " + ex.getMessage());
             }
         });
         
-        VBox placeholder = new VBox(30);
-        placeholder.setAlignment(javafx.geometry.Pos.CENTER);
-        placeholder.getChildren().addAll(welcomeLabel, infoLabel, logoutButton);
-        placeholder.setStyle("-fx-background-color: #191414; -fx-padding: 50;");
+        dashboard.getChildren().addAll(welcomeLabel, typeLabel, infoLabel, testSystemButton, logoutButton);
         
-        return placeholder;
+        return dashboard;
     }
     
     /**
@@ -274,11 +271,9 @@ public class LoginController implements Initializable {
         dialog.setTitle("Crear Nueva Cuenta");
         dialog.setHeaderText("Registro de Usuario en SyncUp");
         
-        // Configurar botones
         ButtonType registerButtonType = new ButtonType("Registrarse", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(registerButtonType, ButtonType.CANCEL);
         
-        // Crear campos de registro
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -352,30 +347,32 @@ public class LoginController implements Initializable {
     
     /**
      * Muestra un mensaje de error.
-     * 
-     * @param message Mensaje a mostrar
      */
     private void showError(String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
-        errorLabel.setStyle("-fx-text-fill: #FF6B6B;");
+        if (errorLabel != null) {
+            errorLabel.setText(message);
+            errorLabel.setVisible(true);
+            errorLabel.setStyle("-fx-text-fill: #FF6B6B;");
+        }
     }
     
     /**
      * Muestra un mensaje de información.
-     * 
-     * @param message Mensaje a mostrar
      */
     private void showInfo(String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
-        errorLabel.setStyle("-fx-text-fill: #1DB954;");
+        if (errorLabel != null) {
+            errorLabel.setText(message);
+            errorLabel.setVisible(true);
+            errorLabel.setStyle("-fx-text-fill: #1DB954;");
+        }
     }
     
     /**
      * Oculta el mensaje de error.
      */
     private void hideError() {
-        errorLabel.setVisible(false);
+        if (errorLabel != null) {
+            errorLabel.setVisible(false);
+        }
     }
 }

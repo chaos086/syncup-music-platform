@@ -1,339 +1,136 @@
 package com.syncup.structures;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
- * Implementación de Trie (Árbol de Prefijos) para funcionalidad de autocompletado
- * en el sistema SyncUp. Permite búsquedas eficientes de prefijos y sugerencias.
- * 
- * @author Alejandro Marín Hernández
- * @version 1.0
- * @since 2025-11-01
+ * Implementación de Trie para autocompletado eficiente.
+ * RF-025: Trie para autocompletado de búsquedas
+ * RF-026: Optimización de consultas con Trie
+ * RF-003: Búsqueda con autocompletado
  */
 public class TrieAutocompletado {
     
-    /** Nodo raíz del Trie */
-    private TrieNode root;
-    
-    /** Número total de palabras en el Trie */
+    private NodoTrie raiz;
     private int size;
     
-    /**
-     * Clase interna que representa un nodo del Trie.
-     */
-    private static class TrieNode {
-        /** Array de hijos para cada caracter (a-z, A-Z, 0-9, espacio y algunos especiales) */
-        private TrieNode[] children;
-        
-        /** Indica si este nodo representa el final de una palabra */
-        private boolean isEndOfWord;
-        
-        /** Palabra completa almacenada en este nodo (solo si isEndOfWord = true) */
-        private String word;
-        
-        /** Frecuencia de uso de esta palabra (para ranking) */
-        private int frequency;
-        
-        /** Tamaño del alfabeto soportado */
-        private static final int ALPHABET_SIZE = 128; // ASCII extendido
-        
-        /**
-         * Constructor del nodo Trie.
-         */
-        public TrieNode() {
-            children = new TrieNode[ALPHABET_SIZE];
-            isEndOfWord = false;
-            word = null;
-            frequency = 0;
-        }
-        
-        /**
-         * Convierte un caracter a índice del array.
-         * 
-         * @param ch Caracter a convertir
-         * @return Índice del array
-         */
-        private int charToIndex(char ch) {
-            return (int) ch;
-        }
-        
-        /**
-         * Convierte un índice del array a caracter.
-         * 
-         * @param index Índice del array
-         * @return Caracter correspondiente
-         */
-        private char indexToChar(int index) {
-            return (char) index;
-        }
-    }
-    
-    /**
-     * Constructor que inicializa el Trie vacío.
-     */
     public TrieAutocompletado() {
-        root = new TrieNode();
+        raiz = new NodoTrie();
         size = 0;
     }
     
     /**
      * Inserta una palabra en el Trie.
-     * Complejidad: O(m) donde m es la longitud de la palabra
-     * 
-     * @param word Palabra a insertar
      */
-    public void insert(String word) {
-        if (word == null || word.trim().isEmpty()) {
-            return;
-        }
+    public void insert(String palabra) {
+        if (palabra == null || palabra.trim().isEmpty()) return;
         
-        // Normalizar la palabra (convertir a minúsculas y limpiar)
-        String normalizedWord = normalizeWord(word);
+        palabra = palabra.toLowerCase().trim();
+        NodoTrie actual = raiz;
         
-        TrieNode current = root;
-        
-        // Recorrer cada caracter de la palabra
-        for (char ch : normalizedWord.toCharArray()) {
-            int index = current.charToIndex(ch);
-            
-            // Crear nuevo nodo si no existe
-            if (current.children[index] == null) {
-                current.children[index] = new TrieNode();
+        for (char c : palabra.toCharArray()) {
+            if (!actual.hijos.containsKey(c)) {
+                actual.hijos.put(c, new NodoTrie());
             }
-            
-            current = current.children[index];
+            actual = actual.hijos.get(c);
         }
         
-        // Marcar el final de la palabra
-        if (!current.isEndOfWord) {
-            current.isEndOfWord = true;
-            current.word = word; // Guardar la palabra original
+        if (!actual.esFinal) {
+            actual.esFinal = true;
+            actual.palabra = palabra;
             size++;
         }
-        
-        // Incrementar frecuencia
-        current.frequency++;
+        actual.frecuencia++;
     }
     
     /**
-     * Busca si una palabra existe en el Trie.
-     * Complejidad: O(m) donde m es la longitud de la palabra
-     * 
-     * @param word Palabra a buscar
-     * @return true si existe, false en caso contrario
+     * Busca palabras que empiecen con el prefijo dado.
      */
-    public boolean search(String word) {
-        if (word == null || word.trim().isEmpty()) {
-            return false;
+    public List<String> getSuggestions(String prefijo) {
+        if (prefijo == null || prefijo.trim().isEmpty()) {
+            return new ArrayList<>();
         }
         
-        TrieNode node = searchNode(normalizeWord(word));
-        return node != null && node.isEndOfWord;
+        prefijo = prefijo.toLowerCase().trim();
+        NodoTrie nodo = buscarNodoPrefijo(prefijo);
+        
+        if (nodo == null) {
+            return new ArrayList<>();
+        }
+        
+        List<PalabraFrecuencia> sugerencias = new ArrayList<>();
+        recolectarPalabras(nodo, sugerencias);
+        
+        // Ordenar por frecuencia y tomar las 10 primeras
+        sugerencias.sort((a, b) -> Integer.compare(b.frecuencia, a.frecuencia));
+        
+        List<String> resultado = new ArrayList<>();
+        int limite = Math.min(10, sugerencias.size());
+        for (int i = 0; i < limite; i++) {
+            resultado.add(sugerencias.get(i).palabra);
+        }
+        
+        return resultado;
     }
     
     /**
-     * Verifica si existe algún palabra que comience con el prefijo dado.
-     * Complejidad: O(p) donde p es la longitud del prefijo
-     * 
-     * @param prefix Prefijo a verificar
-     * @return true si existe algún palabra con ese prefijo
+     * Busca el nodo que corresponde al prefijo.
      */
-    public boolean startsWith(String prefix) {
-        if (prefix == null || prefix.trim().isEmpty()) {
-            return true;
-        }
+    private NodoTrie buscarNodoPrefijo(String prefijo) {
+        NodoTrie actual = raiz;
         
-        return searchNode(normalizeWord(prefix)) != null;
-    }
-    
-    /**
-     * Obtiene todas las palabras que comienzan con el prefijo dado.
-     * Ideal para funcionalidad de autocompletado.
-     * 
-     * @param prefix Prefijo para buscar sugerencias
-     * @param maxSuggestions Número máximo de sugerencias
-     * @return Lista de sugerencias ordenada por frecuencia
-     */
-    public List<String> getSuggestions(String prefix, int maxSuggestions) {
-        List<String> suggestions = new ArrayList<>();
-        
-        if (prefix == null || prefix.trim().isEmpty()) {
-            return suggestions;
-        }
-        
-        String normalizedPrefix = normalizeWord(prefix);
-        TrieNode prefixNode = searchNode(normalizedPrefix);
-        
-        if (prefixNode == null) {
-            return suggestions;
-        }
-        
-        // Realizar DFS para encontrar todas las palabras con el prefijo
-        List<WordFrequency> allSuggestions = new ArrayList<>();
-        dfsCollectWords(prefixNode, allSuggestions);
-        
-        // Ordenar por frecuencia (descendente)
-        allSuggestions.sort((a, b) -> Integer.compare(b.frequency, a.frequency));
-        
-        // Tomar solo las primeras maxSuggestions
-        int limit = Math.min(maxSuggestions, allSuggestions.size());
-        for (int i = 0; i < limit; i++) {
-            suggestions.add(allSuggestions.get(i).word);
-        }
-        
-        return suggestions;
-    }
-    
-    /**
-     * Obtiene sugerencias con un límite por defecto de 10.
-     * 
-     * @param prefix Prefijo para buscar sugerencias
-     * @return Lista de hasta 10 sugerencias
-     */
-    public List<String> getSuggestions(String prefix) {
-        return getSuggestions(prefix, 10);
-    }
-    
-    /**
-     * Elimina una palabra del Trie.
-     * Complejidad: O(m) donde m es la longitud de la palabra
-     * 
-     * @param word Palabra a eliminar
-     * @return true si se eliminó exitosamente, false si no existía
-     */
-    public boolean delete(String word) {
-        if (word == null || word.trim().isEmpty()) {
-            return false;
-        }
-        
-        return deleteHelper(root, normalizeWord(word), 0);
-    }
-    
-    /**
-     * Método auxiliar recursivo para eliminar una palabra.
-     * 
-     * @param current Nodo actual
-     * @param word Palabra a eliminar
-     * @param index Índice actual en la palabra
-     * @return true si el nodo puede ser eliminado
-     */
-    private boolean deleteHelper(TrieNode current, String word, int index) {
-        if (index == word.length()) {
-            // Llegamos al final de la palabra
-            if (!current.isEndOfWord) {
-                return false; // La palabra no existe
-            }
-            
-            current.isEndOfWord = false;
-            current.word = null;
-            current.frequency = 0;
-            size--;
-            
-            // Retornar true si el nodo no tiene hijos (puede ser eliminado)
-            return !hasChildren(current);
-        }
-        
-        char ch = word.charAt(index);
-        int charIndex = current.charToIndex(ch);
-        TrieNode node = current.children[charIndex];
-        
-        if (node == null) {
-            return false; // La palabra no existe
-        }
-        
-        boolean shouldDeleteChild = deleteHelper(node, word, index + 1);
-        
-        if (shouldDeleteChild) {
-            current.children[charIndex] = null;
-            
-            // Retornar true si el nodo actual puede ser eliminado
-            return !current.isEndOfWord && !hasChildren(current);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Verifica si un nodo tiene hijos.
-     * 
-     * @param node Nodo a verificar
-     * @return true si tiene hijos, false en caso contrario
-     */
-    private boolean hasChildren(TrieNode node) {
-        for (TrieNode child : node.children) {
-            if (child != null) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Busca un nodo que corresponde a una palabra o prefijo.
-     * 
-     * @param word Palabra o prefijo a buscar
-     * @return Nodo correspondiente o null si no existe
-     */
-    private TrieNode searchNode(String word) {
-        TrieNode current = root;
-        
-        for (char ch : word.toCharArray()) {
-            int index = current.charToIndex(ch);
-            if (current.children[index] == null) {
+        for (char c : prefijo.toCharArray()) {
+            if (!actual.hijos.containsKey(c)) {
                 return null;
             }
-            current = current.children[index];
+            actual = actual.hijos.get(c);
         }
         
-        return current;
+        return actual;
     }
     
     /**
-     * Normaliza una palabra para la búsqueda (minúsculas, sin espacios extra).
-     * 
-     * @param word Palabra a normalizar
-     * @return Palabra normalizada
+     * Recolecta todas las palabras desde un nodo dado.
      */
-    private String normalizeWord(String word) {
-        return word.toLowerCase().trim();
-    }
-    
-    /**
-     * Realiza DFS para recopilar todas las palabras desde un nodo.
-     * 
-     * @param node Nodo actual
-     * @param result Lista para almacenar resultados
-     */
-    private void dfsCollectWords(TrieNode node, List<WordFrequency> result) {
-        if (node.isEndOfWord) {
-            result.add(new WordFrequency(node.word, node.frequency));
+    private void recolectarPalabras(NodoTrie nodo, List<PalabraFrecuencia> resultado) {
+        if (nodo.esFinal && nodo.palabra != null) {
+            resultado.add(new PalabraFrecuencia(nodo.palabra, nodo.frecuencia));
         }
         
-        for (TrieNode child : node.children) {
-            if (child != null) {
-                dfsCollectWords(child, result);
-            }
+        for (NodoTrie hijo : nodo.hijos.values()) {
+            recolectarPalabras(hijo, resultado);
         }
     }
     
     /**
-     * Clase auxiliar para almacenar palabra y frecuencia.
+     * Verifica si una palabra existe en el Trie.
      */
-    private static class WordFrequency {
-        String word;
-        int frequency;
+    public boolean search(String palabra) {
+        if (palabra == null) return false;
         
-        WordFrequency(String word, int frequency) {
-            this.word = word;
-            this.frequency = frequency;
-        }
+        palabra = palabra.toLowerCase().trim();
+        NodoTrie nodo = buscarNodoPrefijo(palabra);
+        
+        return nodo != null && nodo.esFinal;
     }
     
     /**
-     * Obtiene el número total de palabras en el Trie.
-     * 
-     * @return Número de palabras
+     * Verifica si existe algún prefijo.
+     */
+    public boolean startsWith(String prefijo) {
+        if (prefijo == null) return false;
+        return buscarNodoPrefijo(prefijo.toLowerCase().trim()) != null;
+    }
+    
+    /**
+     * Limpia todo el Trie.
+     */
+    public void clear() {
+        raiz = new NodoTrie();
+        size = 0;
+    }
+    
+    /**
+     * Retorna el número de palabras en el Trie.
      */
     public int size() {
         return size;
@@ -341,55 +138,57 @@ public class TrieAutocompletado {
     
     /**
      * Verifica si el Trie está vacío.
-     * 
-     * @return true si está vacío, false en caso contrario
      */
     public boolean isEmpty() {
         return size == 0;
     }
     
     /**
-     * Elimina todas las palabras del Trie.
-     */
-    public void clear() {
-        root = new TrieNode();
-        size = 0;
-    }
-    
-    /**
-     * Obtiene todas las palabras almacenadas en el Trie.
-     * 
-     * @return Lista con todas las palabras
+     * Obtiene todas las palabras del Trie.
      */
     public List<String> getAllWords() {
-        List<WordFrequency> allWords = new ArrayList<>();
-        dfsCollectWords(root, allWords);
+        List<PalabraFrecuencia> palabras = new ArrayList<>();
+        recolectarPalabras(raiz, palabras);
         
-        List<String> result = new ArrayList<>();
-        for (WordFrequency wf : allWords) {
-            result.add(wf.word);
+        List<String> resultado = new ArrayList<>();
+        for (PalabraFrecuencia pf : palabras) {
+            resultado.add(pf.palabra);
         }
-        
-        return result;
+        return resultado;
     }
     
     /**
-     * Obtiene la frecuencia de una palabra específica.
-     * 
-     * @param word Palabra a consultar
-     * @return Frecuencia de la palabra, 0 si no existe
+     * Clase interna para representar un nodo del Trie.
      */
-    public int getWordFrequency(String word) {
-        if (word == null || word.trim().isEmpty()) {
-            return 0;
-        }
+    private static class NodoTrie {
+        Map<Character, NodoTrie> hijos;
+        boolean esFinal;
+        String palabra;
+        int frecuencia;
         
-        TrieNode node = searchNode(normalizeWord(word));
-        return (node != null && node.isEndOfWord) ? node.frequency : 0;
+        public NodoTrie() {
+            hijos = new HashMap<>();
+            esFinal = false;
+            palabra = null;
+            frecuencia = 0;
+        }
+    }
+    
+    /**
+     * Clase auxiliar para almacenar palabra y frecuencia.
+     */
+    private static class PalabraFrecuencia {
+        String palabra;
+        int frecuencia;
+        
+        PalabraFrecuencia(String palabra, int frecuencia) {
+            this.palabra = palabra;
+            this.frecuencia = frecuencia;
+        }
     }
     
     @Override
     public String toString() {
-        return "TrieAutocompletado{size=" + size + ", words=" + getAllWords() + "}";
+        return String.format("TrieAutocompletado{size=%d}", size);
     }
 }

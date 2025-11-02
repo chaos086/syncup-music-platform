@@ -2,11 +2,12 @@ package com.syncup.data;
 
 import com.syncup.models.Usuario;
 import com.syncup.models.Cancion;
+import com.syncup.models.Admin;
 import com.syncup.structures.HashMap;
 import com.syncup.structures.TrieAutocompletado;
+import com.syncup.structures.GrafoSocial;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
  * Gestor principal de datos del sistema SyncUp.
  * Maneja la persistencia y acceso a usuarios, canciones y índices de búsqueda.
  * Implementa patrón Singleton para acceso global.
+ * RF-015, RF-016, RF-017: Indexación eficiente con HashMap
  * 
  * @author Alejandro Marín Hernández
  * @version 1.0
@@ -43,14 +45,11 @@ public class DataManager {
     /** Trie para autocompletado de géneros */
     private TrieAutocompletado trieGeneros;
     
+    /** Grafo social para conexiones entre usuarios */
+    private GrafoSocial grafoSocial;
+    
     /** Ruta base para archivos de datos */
     private static final String DATA_DIR = "data/";
-    
-    /** Archivo de usuarios */
-    private static final String USUARIOS_FILE = DATA_DIR + "usuarios.txt";
-    
-    /** Archivo de canciones */
-    private static final String CANCIONES_FILE = DATA_DIR + "canciones.txt";
     
     /** Usuario administrador por defecto */
     private static final String ADMIN_USERNAME = "admin";
@@ -70,6 +69,7 @@ public class DataManager {
         trieTitulos = new TrieAutocompletado();
         trieArtistas = new TrieAutocompletado();
         trieGeneros = new TrieAutocompletado();
+        grafoSocial = new GrafoSocial();
     }
     
     /**
@@ -93,16 +93,14 @@ public class DataManager {
         // Crear directorio de datos si no existe
         createDataDirectory();
         
-        // Cargar datos existentes
-        loadData();
-        
-        // Crear usuarios por defecto si no existen
+        // Crear usuarios por defecto
         createDefaultUsers();
         
-        // Cargar canciones de muestra si no hay canciones
-        if (cancionesById.isEmpty()) {
-            loadSampleSongs();
-        }
+        // Cargar canciones de muestra
+        loadSampleSongs();
+        
+        // Construir índices de búsqueda
+        buildSearchIndices();
         
         System.out.println("DataManager inicializado correctamente.");
         System.out.println("Usuarios cargados: " + usuariosById.size());
@@ -118,66 +116,7 @@ public class DataManager {
             boolean created = dataDir.mkdirs();
             if (created) {
                 System.out.println("Directorio de datos creado: " + DATA_DIR);
-            } else {
-                System.err.println("No se pudo crear el directorio de datos: " + DATA_DIR);
             }
-        }
-    }
-    
-    /**
-     * Carga todos los datos desde archivos.
-     */
-    private void loadData() {
-        loadUsuarios();
-        loadCanciones();
-        buildSearchIndices();
-    }
-    
-    /**
-     * Carga usuarios desde archivo.
-     */
-    private void loadUsuarios() {
-        File file = new File(USUARIOS_FILE);
-        if (!file.exists()) {
-            System.out.println("Archivo de usuarios no encontrado. Se creará uno nuevo.");
-            return;
-        }
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Usuario usuario = parseUsuarioFromLine(line);
-                if (usuario != null) {
-                    addUsuarioToIndices(usuario);
-                }
-            }
-            System.out.println("Usuarios cargados desde archivo: " + usuariosById.size());
-        } catch (IOException e) {
-            System.err.println("Error al cargar usuarios: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Carga canciones desde archivo.
-     */
-    private void loadCanciones() {
-        File file = new File(CANCIONES_FILE);
-        if (!file.exists()) {
-            System.out.println("Archivo de canciones no encontrado. Se creará uno nuevo.");
-            return;
-        }
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Cancion cancion = parseCancionFromLine(line);
-                if (cancion != null) {
-                    addCancionToIndices(cancion);
-                }
-            }
-            System.out.println("Canciones cargadas desde archivo: " + cancionesById.size());
-        } catch (IOException e) {
-            System.err.println("Error al cargar canciones: " + e.getMessage());
         }
     }
     
@@ -187,21 +126,11 @@ public class DataManager {
     private void buildSearchIndices() {
         System.out.println("Construyendo índices de búsqueda...");
         
-        // Limpiar Tries existentes
-        trieTitulos.clear();
-        trieArtistas.clear();
-        trieGeneros.clear();
-        
         // Agregar todas las canciones a los Tries
         for (Cancion cancion : cancionesById.values()) {
             trieTitulos.insert(cancion.getTitulo());
             trieArtistas.insert(cancion.getArtista());
             trieGeneros.insert(cancion.getGenero());
-            
-            // Agregar artistas colaboradores
-            for (String artista : cancion.getArtistasColaboradores()) {
-                trieArtistas.insert(artista);
-            }
         }
         
         System.out.println("Índices de búsqueda construidos.");
@@ -213,10 +142,12 @@ public class DataManager {
     private void createDefaultUsers() {
         // Crear administrador por defecto
         if (usuariosByUsername.get(ADMIN_USERNAME) == null) {
-            Usuario admin = new Usuario(ADMIN_USERNAME, ADMIN_PASSWORD);
+            Admin admin = new Admin(ADMIN_USERNAME, ADMIN_PASSWORD);
             admin.setNombreCompleto("Administrador del Sistema");
             admin.setEmail("admin@syncup.com");
             admin.setEsAdmin(true);
+            admin.setNivelAcceso(5); // Máximo nivel
+            admin.setDepartamento("IT");
             
             addUsuario(admin);
             System.out.println("Usuario administrador creado: " + ADMIN_USERNAME);
@@ -242,6 +173,10 @@ public class DataManager {
      * Carga canciones de muestra en el sistema.
      */
     private void loadSampleSongs() {
+        if (!cancionesById.isEmpty()) {
+            return; // Ya hay canciones cargadas
+        }
+        
         System.out.println("Cargando canciones de muestra...");
         
         // Lista de canciones de muestra
@@ -255,12 +190,12 @@ public class DataManager {
             {"Dancing Queen", "ABBA", "Arrival", "Pop", 1976, 230},
             {"Wonderwall", "Oasis", "(What's the Story) Morning Glory?", "Britpop", 1995, 258},
             {"Lose Yourself", "Eminem", "8 Mile Soundtrack", "Hip Hop", 2002, 326},
-            {"Somebody That I Used to Know", "Gotye", "Making Mirrors", "Indie Pop", 2011, 244},
             {"Shape of You", "Ed Sheeran", "÷ (Divide)", "Pop", 2017, 233},
             {"Blinding Lights", "The Weeknd", "After Hours", "Synthpop", 2019, 200},
             {"One More Time", "Daft Punk", "Discovery", "Electronic", 2000, 320},
             {"Mr. Brightside", "The Killers", "Hot Fuss", "Alternative Rock", 2003, 222},
-            {"Uptown Funk", "Mark Ronson ft. Bruno Mars", "Uptown Special", "Funk", 2014, 270}
+            {"Uptown Funk", "Bruno Mars", "Uptown Special", "Funk", 2014, 270},
+            {"Bad Guy", "Billie Eilish", "When We All Fall Asleep", "Pop", 2019, 194}
         };
         
         for (Object[] songData : sampleSongs) {
@@ -290,34 +225,36 @@ public class DataManager {
     
     /**
      * Agrega un usuario al sistema.
-     * 
-     * @param usuario Usuario a agregar
-     * @return true si se agregó exitosamente, false si ya existía
      */
     public boolean addUsuario(Usuario usuario) {
         if (usuario == null || usuariosByUsername.containsKey(usuario.getUsername())) {
             return false;
         }
         
-        addUsuarioToIndices(usuario);
+        usuariosById.put(usuario.getId(), usuario);
+        usuariosByUsername.put(usuario.getUsername(), usuario);
+        
+        // Agregar al grafo social
+        grafoSocial.agregarUsuario(usuario);
+        
         return true;
     }
     
     /**
-     * Agrega un usuario a los índices internos.
-     * 
-     * @param usuario Usuario a agregar
+     * Remueve un usuario del sistema.
      */
-    private void addUsuarioToIndices(Usuario usuario) {
-        usuariosById.put(usuario.getId(), usuario);
-        usuariosByUsername.put(usuario.getUsername(), usuario);
+    public boolean removeUsuario(String usuarioId) {
+        Usuario usuario = usuariosById.get(usuarioId);
+        if (usuario != null) {
+            usuariosById.remove(usuarioId);
+            usuariosByUsername.remove(usuario.getUsername());
+            return true;
+        }
+        return false;
     }
     
     /**
      * Obtiene un usuario por su ID.
-     * 
-     * @param id ID del usuario
-     * @return Usuario encontrado o null
      */
     public Usuario getUsuarioById(String id) {
         return usuariosById.get(id);
@@ -325,9 +262,6 @@ public class DataManager {
     
     /**
      * Obtiene un usuario por su username.
-     * 
-     * @param username Username del usuario
-     * @return Usuario encontrado o null
      */
     public Usuario getUsuarioByUsername(String username) {
         return usuariosByUsername.get(username);
@@ -335,10 +269,6 @@ public class DataManager {
     
     /**
      * Autentica un usuario con username y password.
-     * 
-     * @param username Username del usuario
-     * @param password Password del usuario
-     * @return Usuario autenticado o null si las credenciales son inválidas
      */
     public Usuario authenticateUser(String username, String password) {
         Usuario usuario = usuariosByUsername.get(username);
@@ -352,36 +282,31 @@ public class DataManager {
     
     /**
      * Agrega una canción al sistema.
-     * 
-     * @param cancion Canción a agregar
-     * @return true si se agregó exitosamente, false si ya existía
      */
     public boolean addCancion(Cancion cancion) {
         if (cancion == null || cancionesById.containsKey(cancion.getId())) {
             return false;
         }
         
-        addCancionToIndices(cancion);
+        cancionesById.put(cancion.getId(), cancion);
+        
+        // Agregar a índices de búsqueda
+        trieTitulos.insert(cancion.getTitulo());
+        trieArtistas.insert(cancion.getArtista());
+        trieGeneros.insert(cancion.getGenero());
+        
         return true;
     }
     
     /**
-     * Agrega una canción a los índices internos.
-     * 
-     * @param cancion Canción a agregar
+     * Remueve una canción del sistema.
      */
-    private void addCancionToIndices(Cancion cancion) {
-        cancionesById.put(cancion.getId(), cancion);
-        trieTitulos.insert(cancion.getTitulo());
-        trieArtistas.insert(cancion.getArtista());
-        trieGeneros.insert(cancion.getGenero());
+    public boolean removeCancion(String cancionId) {
+        return cancionesById.remove(cancionId) != null;
     }
     
     /**
      * Obtiene una canción por su ID.
-     * 
-     * @param id ID de la canción
-     * @return Canción encontrada o null
      */
     public Cancion getCancionById(String id) {
         return cancionesById.get(id);
@@ -389,8 +314,6 @@ public class DataManager {
     
     /**
      * Obtiene todas las canciones del sistema.
-     * 
-     * @return Lista con todas las canciones
      */
     public List<Cancion> getAllCanciones() {
         return cancionesById.values();
@@ -398,144 +321,51 @@ public class DataManager {
     
     /**
      * Obtiene todos los usuarios del sistema.
-     * 
-     * @return Lista con todos los usuarios
      */
     public List<Usuario> getAllUsuarios() {
         return usuariosById.values();
     }
     
+    /**
+     * Obtiene el grafo social del sistema.
+     */
+    public GrafoSocial getGrafoSocial() {
+        return grafoSocial;
+    }
+    
     // Métodos para autocompletado
     
     /**
-     * Obtiene sugerencias de títulos de canciones.
-     * 
-     * @param prefix Prefijo a buscar
-     * @return Lista de sugerencias
+     * RF-003: Obtiene sugerencias de títulos de canciones.
      */
     public List<String> getSugerenciasTitulos(String prefix) {
         return trieTitulos.getSuggestions(prefix);
     }
     
     /**
-     * Obtiene sugerencias de artistas.
-     * 
-     * @param prefix Prefijo a buscar
-     * @return Lista de sugerencias
+     * RF-003: Obtiene sugerencias de artistas.
      */
     public List<String> getSugerenciasArtistas(String prefix) {
         return trieArtistas.getSuggestions(prefix);
     }
     
     /**
-     * Obtiene sugerencias de géneros.
-     * 
-     * @param prefix Prefijo a buscar
-     * @return Lista de sugerencias
+     * RF-003: Obtiene sugerencias de géneros.
      */
     public List<String> getSugerenciasGeneros(String prefix) {
         return trieGeneros.getSuggestions(prefix);
     }
     
     /**
-     * Guarda todos los datos en archivos.
+     * Guarda todos los datos (placeholder - en memoria por ahora).
      */
     public void saveAllData() {
-        saveUsuarios();
-        saveCanciones();
-        System.out.println("Todos los datos guardados exitosamente.");
+        System.out.println("Datos guardados en memoria - Usuarios: " + usuariosById.size() + 
+                          ", Canciones: " + cancionesById.size());
     }
     
     /**
-     * Guarda usuarios en archivo.
-     */
-    private void saveUsuarios() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(USUARIOS_FILE))) {
-            for (Usuario usuario : usuariosById.values()) {
-                writer.println(usuarioToLine(usuario));
-            }
-            System.out.println("Usuarios guardados: " + usuariosById.size());
-        } catch (IOException e) {
-            System.err.println("Error al guardar usuarios: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Guarda canciones en archivo.
-     */
-    private void saveCanciones() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(CANCIONES_FILE))) {
-            for (Cancion cancion : cancionesById.values()) {
-                writer.println(cancionToLine(cancion));
-            }
-            System.out.println("Canciones guardadas: " + cancionesById.size());
-        } catch (IOException e) {
-            System.err.println("Error al guardar canciones: " + e.getMessage());
-        }
-    }
-    
-    // Métodos auxiliares para parsing
-    
-    private Usuario parseUsuarioFromLine(String line) {
-        try {
-            String[] parts = line.split("\t");
-            if (parts.length >= 6) {
-                Usuario usuario = new Usuario(parts[1], parts[2]); // username, password
-                usuario.setId(parts[0]);
-                usuario.setNombreCompleto(parts[3]);
-                usuario.setEmail(parts[4]);
-                usuario.setEsAdmin(Boolean.parseBoolean(parts[5]));
-                return usuario;
-            }
-        } catch (Exception e) {
-            System.err.println("Error parsing usuario: " + e.getMessage());
-        }
-        return null;
-    }
-    
-    private Cancion parseCancionFromLine(String line) {
-        try {
-            String[] parts = line.split("\t");
-            if (parts.length >= 7) {
-                Cancion cancion = new Cancion(parts[1], parts[2], parts[4], Integer.parseInt(parts[5]));
-                cancion.setId(parts[0]);
-                cancion.setAlbum(parts[3]);
-                cancion.setDuracionSegundos(Integer.parseInt(parts[6]));
-                return cancion;
-            }
-        } catch (Exception e) {
-            System.err.println("Error parsing cancion: " + e.getMessage());
-        }
-        return null;
-    }
-    
-    private String usuarioToLine(Usuario usuario) {
-        return String.join("\t",
-            usuario.getId(),
-            usuario.getUsername(),
-            usuario.getPassword(),
-            usuario.getNombreCompleto(),
-            usuario.getEmail(),
-            String.valueOf(usuario.isEsAdmin())
-        );
-    }
-    
-    private String cancionToLine(Cancion cancion) {
-        return String.join("\t",
-            cancion.getId(),
-            cancion.getTitulo(),
-            cancion.getArtista(),
-            cancion.getAlbum(),
-            cancion.getGenero(),
-            String.valueOf(cancion.getAnio()),
-            String.valueOf(cancion.getDuracionSegundos())
-        );
-    }
-    
-    /**
-     * Obtiene estadísticas del sistema.
-     * 
-     * @return String con estadísticas
+     * RF-013: Obtiene estadísticas del sistema.
      */
     public String getSystemStats() {
         return String.format(
@@ -545,15 +375,17 @@ public class DataManager {
             "Títulos indexados: %d\n" +
             "Artistas indexados: %d\n" +
             "Géneros indexados: %d\n" +
-            "HashMap usuarios stats: %s\n" +
-            "HashMap canciones stats: %s",
+            "Conexiones sociales: %d\n" +
+            "HashMap usuarios - Tamaño: %d, Factor carga: %.2f\n" +
+            "HashMap canciones - Tamaño: %d, Factor carga: %.2f",
             usuariosById.size(),
             cancionesById.size(),
             trieTitulos.size(),
             trieArtistas.size(),
             trieGeneros.size(),
-            usuariosById.getDistributionStats(),
-            cancionesById.getDistributionStats()
+            grafoSocial.getNumeroConexiones(),
+            usuariosById.size(), usuariosById.getLoadFactor(),
+            cancionesById.size(), cancionesById.getLoadFactor()
         );
     }
 }

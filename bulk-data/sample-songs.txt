@@ -1,0 +1,7 @@
+# Ejemplo de archivo para carga masiva
+# Formato: titulo	artista	album	genero	año	duracion_segundos
+Stairway to Heaven	Led Zeppelin	Led Zeppelin IV	Rock	1971	482
+Thriller	Michael Jackson	Thriller	Pop	1982	357
+Like a Rolling Stone	Bob Dylan	Highway 61 Revisited	Folk Rock	1965	369
+Purple Haze	Jimi Hendrix	Are You Experienced	Rock	1967	170
+Good Vibrations	The Beach Boys	Smiley Smile	Pop	1966	218

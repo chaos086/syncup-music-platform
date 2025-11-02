@@ -42,9 +42,11 @@ test {
     useJUnitPlatform()
 }
 
-// Configuración para ejecutar con JavaFX
+// Configuración CORREGIDA para ejecutar con JavaFX
 run {
     jvmArgs = [
+        '--module-path', configurations.runtimeClasspath.asPath,
+        '--add-modules', 'javafx.controls,javafx.fxml',
         '--add-opens', 'javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED',
         '--add-opens', 'javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED',
         '--add-opens', 'javafx.base/com.sun.javafx.binding=ALL-UNNAMED',

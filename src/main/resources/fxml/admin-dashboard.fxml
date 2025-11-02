@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.syncup.controllers.AdminDashboardController">
+   <top>
+      <VBox styleClass="dashboard-container">
+         <HBox alignment="CENTER_LEFT" spacing="20.0">
+            <VBox alignment="CENTER_LEFT">
+               <Label fx:id="adminWelcomeLabel" styleClass="app-title" text="Panel Administrativo" />
+               <Label fx:id="adminStatsLabel" styleClass="app-subtitle" text="Cargando..." />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <ProgressIndicator fx:id="loadingIndicator" prefHeight="24.0" prefWidth="24.0" visible="false" />
+            <Label fx:id="statusLabel" styleClass="success-message" text="Sistema Operativo" />
+            <padding>
+               <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
+            </padding>
+         </HBox>
+      </VBox>
+   </top>
+   
+   <center>
+      <TabPane tabClosingPolicy="UNAVAILABLE">
+         
+         <Tab text="Metricas">
+            <VBox spacing="20.0" styleClass="content-panel">
+               <HBox spacing="20.0">
+                  <VBox alignment="CENTER" spacing="5.0" styleClass="metric-card">
+                     <Label styleClass="metric-number" fx:id="totalUsersLabel" text="0" />
+                     <Label styleClass="metric-label" text="Usuarios" />
+                  </VBox>
+                  
+                  <VBox alignment="CENTER" spacing="5.0" styleClass="metric-card">
+                     <Label styleClass="metric-number" fx:id="totalSongsLabel" text="0" />
+                     <Label styleClass="metric-label" text="Canciones" />
+                  </VBox>
+                  
+                  <Button fx:id="refreshMetricsButton" onAction="#handleRefreshMetrics" styleClass="secondary-button" text="Actualizar" />
+               </HBox>
+               
+               <HBox spacing="20.0">
+                  <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                     <Label styleClass="section-title" text="Generos" />
+                     <PieChart fx:id="genreDistributionChart" prefHeight="300.0" />
+                  </VBox>
+                  
+                  <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                     <Label styleClass="section-title" text="Artistas" />
+                     <BarChart fx:id="popularArtistsChart" prefHeight="300.0">
+                        <xAxis><CategoryAxis /></xAxis>
+                        <yAxis><NumberAxis /></yAxis>
+                     </BarChart>
+                  </VBox>
+               </HBox>
+               
+               <TextArea fx:id="systemStatsArea" editable="false" prefHeight="150.0" wrapText="true" />
+               
+               <padding>
+                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+               </padding>
+            </VBox>
+         </Tab>
+         
+         <Tab text="Catalogo">
+            <VBox spacing="20.0" styleClass="content-panel">
+               <HBox spacing="10.0">
+                  <TextField fx:id="newSongTitleField" prefWidth="200.0" promptText="Titulo" />
+                  <TextField fx:id="newSongArtistField" prefWidth="150.0" promptText="Artista" />
+                  <TextField fx:id="newSongGenreField" prefWidth="120.0" promptText="Genero" />
+                  <TextField fx:id="newSongYearField" prefWidth="80.0" promptText="Año" />
+                  <Button fx:id="addSongButton" onAction="#handleAddSong" styleClass="primary-button" text="Agregar" />
+               </HBox>
+               
+               <TableView fx:id="catalogTable" prefHeight="400.0">
+                  <columns>
+                     <TableColumn fx:id="catalogTitleColumn" prefWidth="200.0" text="Titulo" />
+                     <TableColumn fx:id="catalogArtistColumn" prefWidth="150.0" text="Artista" />
+                     <TableColumn fx:id="catalogGenreColumn" prefWidth="100.0" text="Genero" />
+                     <TableColumn fx:id="catalogYearColumn" prefWidth="80.0" text="Año" />
+                  </columns>
+               </TableView>
+               
+               <Button fx:id="deleteSongButton" onAction="#handleDeleteSong" styleClass="danger-button" text="Eliminar" />
+               
+               <padding>
+                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+               </padding>
+            </VBox>
+         </Tab>
+         
+         <Tab text="Carga Masiva">
+            <VBox spacing="20.0" styleClass="content-panel">
+               <HBox spacing="10.0">
+                  <Button fx:id="selectFileButton" onAction="#handleSelectFile" styleClass="secondary-button" text="Seleccionar" />
+                  <Button fx:id="validateFileButton" onAction="#handleValidateFile" styleClass="secondary-button" text="Validar" />
+                  <Button fx:id="bulkLoadButton" onAction="#handleBulkLoad" styleClass="primary-button" text="Cargar" />
+                  <ProgressIndicator fx:id="bulkLoadProgress" visible="false" />
+               </HBox>
+               
+               <Label fx:id="bulkLoadStatusLabel" text="Sin archivo" />
+               <TextArea fx:id="bulkLoadResultsArea" editable="false" prefHeight="300.0" wrapText="true" />
+               
+               <padding>
+                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+               </padding>
+            </VBox>
+         </Tab>
+         
+      </TabPane>
+   </center>
+   
+</BorderPane>

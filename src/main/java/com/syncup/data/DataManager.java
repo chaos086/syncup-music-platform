@@ -2,12 +2,10 @@ package com.syncup.data;
 
 import com.syncup.models.Usuario;
 import com.syncup.models.Cancion;
-import com.syncup.models.Admin;
 import com.syncup.structures.HashMap;
 import com.syncup.structures.TrieAutocompletado;
 import com.syncup.structures.GrafoSocial;
 
-import java.io.File;
 import java.util.List;
 
 public class DataManager {
@@ -52,7 +50,6 @@ public class DataManager {
 
     private void createDefaultUsers() {
         if (usuariosByUsername.get(ADMIN_USERNAME) == null) {
-            // Crear usuario admin normal y luego convertir a admin
             Usuario adminUser = new Usuario(ADMIN_USERNAME, ADMIN_PASSWORD);
             adminUser.setNombreCompleto("Administrador del Sistema");
             adminUser.setEmail("admin@syncup.com");
@@ -72,9 +69,7 @@ public class DataManager {
         Object[][] sample = {
             {"Bohemian Rhapsody","Queen","A Night at the Opera","Rock",1975,355},
             {"Imagine","John Lennon","Imagine","Rock",1971,183},
-            {"Billie Jean","Michael Jackson","Thriller","Pop",1983,294},
-            {"Hotel California","Eagles","Hotel California","Rock",1976,391},
-            {"Sweet Child O Mine","Guns N Roses","Appetite for Destruction","Rock",1987,356}
+            {"Billie Jean","Michael Jackson","Thriller","Pop",1983,294}
         };
         for (Object[] s : sample) {
             Cancion c = new Cancion((String)s[0], (String)s[1], (String)s[3], (Integer)s[4]);
@@ -82,6 +77,18 @@ public class DataManager {
             c.setDuracionSegundos((Integer)s[5]);
             addCancion(c);
         }
+    }
+
+    // NUEVO: creación de usuario por registro (no admin)
+    public synchronized boolean createUser(String username, String password, String nombre, String email) {
+        if (username == null || username.trim().isEmpty()) return false;
+        if (password == null || password.trim().isEmpty()) return false;
+        if (usuariosByUsername.containsKey(username)) return false;
+        Usuario u = new Usuario(username.trim(), password.trim());
+        u.setNombreCompleto(nombre == null ? "" : nombre.trim());
+        u.setEmail(email == null ? "" : email.trim());
+        u.setEsAdmin(false);
+        return addUsuario(u);
     }
 
     // Usuarios
@@ -96,6 +103,7 @@ public class DataManager {
     public boolean removeUsuario(String id) {
         Usuario u = usuariosById.get(id);
         if (u == null) return false;
+        if (ADMIN_USERNAME.equals(u.getUsername())) return false; // proteger admin
         usuariosById.remove(id);
         usuariosByUsername.remove(u.getUsername());
         return true;
@@ -106,6 +114,9 @@ public class DataManager {
     public List<Usuario> getAllUsuarios() { return usuariosById.values(); }
 
     public Usuario authenticateUser(String username, String password) {
+        if (ADMIN_USERNAME.equals(username) && ADMIN_PASSWORD.equals(password)) {
+            return usuariosByUsername.get(ADMIN_USERNAME);
+        }
         Usuario u = usuariosByUsername.get(username);
         return (u != null && u.getPassword().equals(password) && u.isActivo()) ? u : null;
     }

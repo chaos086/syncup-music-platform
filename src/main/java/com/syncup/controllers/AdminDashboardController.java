@@ -5,17 +5,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import com.syncup.models.Usuario;
 import com.syncup.models.Cancion;
 import com.syncup.data.DataManager;
 import com.syncup.services.ReportService;
 import com.syncup.services.BulkDataLoader;
+import com.syncup.utils.StyleManager;
 
 import java.io.File;
 import java.net.URL;
@@ -51,6 +56,7 @@ public class AdminDashboardController implements Initializable {
     @FXML private BarChart<String, Number> popularArtistsChart;
     @FXML private Label statusLabel;
     @FXML private ProgressIndicator loadingIndicator;
+    @FXML private Button logoutButton;
 
     private Usuario currentUser; // CAMBIADO: Usuario en lugar de Admin
     private File selectedBulkFile;
@@ -156,6 +162,24 @@ public class AdminDashboardController implements Initializable {
     }
 
     @FXML private void handleRefreshMetrics() { actualizarMetricas(); }
+
+    @FXML private void handleLogout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root, 1200, 800);
+            StyleManager.applySpotifyTheme(scene);
+            Stage stage = (Stage) (logoutButton != null ? logoutButton.getScene().getWindow() 
+                                  : statusLabel.getScene().getWindow());
+            stage.setScene(scene);
+            stage.setTitle("SyncUp - Login");
+            stage.centerOnScreen();
+            System.out.println("Admin \"" + currentUser.getUsername() + "\" cerró sesión");
+        } catch (Exception ex) {
+            System.err.println("Error volviendo al login: " + ex);
+            mostrarError("Error cerrando sesión");
+        }
+    }
 
     private void actualizarMetricas() {
         if (totalUsersLabel!=null) totalUsersLabel.setText(String.valueOf(dataManager.getAllUsuarios().size()));

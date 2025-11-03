@@ -13,7 +13,6 @@ import javafx.stage.FileChooser;
 
 import com.syncup.models.Usuario;
 import com.syncup.models.Cancion;
-import com.syncup.models.Admin;
 import com.syncup.data.DataManager;
 import com.syncup.services.ReportService;
 import com.syncup.services.BulkDataLoader;
@@ -53,7 +52,7 @@ public class AdminDashboardController implements Initializable {
     @FXML private Label statusLabel;
     @FXML private ProgressIndicator loadingIndicator;
 
-    private Admin currentAdmin;
+    private Usuario currentUser; // CAMBIADO: Usuario en lugar de Admin
     private File selectedBulkFile;
     private DataManager dataManager;
     private ReportService reportService;
@@ -76,8 +75,9 @@ public class AdminDashboardController implements Initializable {
         if (catalogYearColumn != null) catalogYearColumn.setCellValueFactory(new PropertyValueFactory<>("anio"));
     }
 
-    public void setCurrentAdmin(Admin admin) {
-        this.currentAdmin = admin;
+    // CAMBIADO: setCurrentUser en lugar de setCurrentAdmin
+    public void setCurrentUser(Usuario usuario) {
+        this.currentUser = usuario;
         actualizarDatosAdmin();
         cargarCatalogo();
         actualizarMetricas();
@@ -85,9 +85,9 @@ public class AdminDashboardController implements Initializable {
     }
 
     private void actualizarDatosAdmin() {
-        if (currentAdmin == null) return;
-        if (adminWelcomeLabel != null) adminWelcomeLabel.setText("Panel Administrativo - " + currentAdmin.getNombreCompleto());
-        if (adminStatsLabel != null) adminStatsLabel.setText("Admin");
+        if (currentUser == null) return;
+        if (adminWelcomeLabel != null) adminWelcomeLabel.setText("Panel Administrativo - " + currentUser.getNombreCompleto());
+        if (adminStatsLabel != null) adminStatsLabel.setText("Admin: " + currentUser.getUsername());
     }
 
     private void cargarCatalogo() {
@@ -143,7 +143,7 @@ public class AdminDashboardController implements Initializable {
         if (bulkLoadProgress != null) bulkLoadProgress.setVisible(true);
         Task<BulkDataLoader.ResultadoCargaMasiva> t = new Task<BulkDataLoader.ResultadoCargaMasiva>(){
             @Override protected BulkDataLoader.ResultadoCargaMasiva call(){
-                String adminId = currentAdmin != null ? currentAdmin.getId() : "admin";
+                String adminId = currentUser != null ? currentUser.getId() : "admin";
                 return bulkDataLoader.cargarCancionesMasivas(selectedBulkFile.getAbsolutePath(), adminId);
             }
         };

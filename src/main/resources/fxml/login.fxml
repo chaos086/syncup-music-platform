@@ -77,35 +77,6 @@
                </font>
             </Button>
          </VBox>
-         
-         <!-- Usuarios de Prueba -->
-         <VBox alignment="CENTER" spacing="10.0">
-            <Label styleClass="demo-title" text="Usuarios de Prueba:">
-               <font>
-                  <Font name="System Bold" size="12.0" />
-               </font>
-            </Label>
-            
-            <HBox alignment="CENTER" spacing="20.0">
-               <Button fx:id="demoUserButton" mnemonicParsing="false" onAction="#handleDemoLogin" styleClass="demo-button" text="Demo User">
-                  <font>
-                     <Font size="11.0" />
-                  </font>
-               </Button>
-               
-               <Button fx:id="adminUserButton" mnemonicParsing="false" onAction="#handleAdminLogin" styleClass="demo-button" text="Admin">
-                  <font>
-                     <Font size="11.0" />
-                  </font>
-               </Button>
-            </HBox>
-            
-            <Label styleClass="demo-info" text="demo_user / demo123  |  admin / admin123">
-               <font>
-                  <Font size="10.0" />
-               </font>
-            </Label>
-         </VBox>
       </VBox>
    </center>
    

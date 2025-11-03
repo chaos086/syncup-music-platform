@@ -44,25 +44,39 @@ public class UserDashboardController implements Initializable {
     @FXML private Label welcomeLabel; @FXML private Label userStatsLabel; @FXML private Label statusLabel; @FXML private ProgressIndicator loadingIndicator;
     @FXML private ImageView playerCover; @FXML private Label playerTitle; @FXML private Label playerArtist; @FXML private Label playerCurrent; @FXML private Label playerTotal; @FXML private Slider playerSeek; @FXML private Slider playerVolume; @FXML private Button btnPrev; @FXML private Button btnPlayPause; @FXML private Button btnNext;
 
+    // Sidebar buttons
+    @FXML private Button sidebarHome; @FXML private Button sidebarFavorites; @FXML private Button sidebarDiscover; @FXML private Button sidebarSearch; @FXML private Button sidebarProfile;
+
     // Perfil
     @FXML private Label profileName; @FXML private Label profileUsername; @FXML private Label profileEmail; @FXML private Label profileFollowing; @FXML private Label profileFollowers; @FXML private ListView<String> albumsList;
 
     private Usuario currentUser; private DataManager dataManager; private RecommendationEngine recommendationEngine;
     private List<Cancion> currentQueue = new ArrayList<>(); private int currentIndex=-1; private boolean isPlaying=false; private int durationSeconds=0; private int currentSeconds=0; private Timeline progressTimer;
 
-    @Override public void initialize(URL location, ResourceBundle resources){ dataManager=DataManager.getInstance(); recommendationEngine=new RecommendationEngine(); if(loadingIndicator!=null) loadingIndicator.setVisible(false); setupTables(); setupPlayer(); setupFavoriteButton(); }
+    @Override public void initialize(URL location, ResourceBundle resources){ dataManager=DataManager.getInstance(); recommendationEngine=new RecommendationEngine(); if(loadingIndicator!=null) loadingIndicator.setVisible(false); setupTables(); setupPlayer(); setupFavoriteButton(); setupSidebarIcons(); }
 
     private void setupFavoriteButton(){
         if(addToFavoritesButton != null){
-            // Cargar imagen remota del corazón de favoritos
-            Image favIcon = new Image("https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg", 20, 20, true, true, true);
+            // Restaurar al formato original: texto + emoji
+            addToFavoritesButton.setText("♥ Agregar a Favoritos");
+            addToFavoritesButton.setGraphic(null);
+            addToFavoritesButton.getStyleClass().removeAll("favorite-icon");
+            addToFavoritesButton.setTooltip(new Tooltip("Agregar canción a favoritos"));
+        }
+    }
+
+    private void setupSidebarIcons(){
+        // Botón de favoritos de la sidebar con imagen remota que ocupa todo el espacio
+        if(sidebarFavorites != null){
+            Image favIcon = new Image("https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg", 40, 40, false, true, true);
             ImageView favIconView = new ImageView(favIcon);
-            favIconView.setFitWidth(20);
-            favIconView.setFitHeight(20);
-            addToFavoritesButton.setGraphic(favIconView);
-            addToFavoritesButton.setText("");
-            addToFavoritesButton.getStyleClass().add("favorite-icon");
-            addToFavoritesButton.setTooltip(new Tooltip("Agregar a favoritos"));
+            favIconView.setFitWidth(40);
+            favIconView.setFitHeight(40);
+            favIconView.setPreserveRatio(false); // Llenar todo el espacio
+            sidebarFavorites.setGraphic(favIconView);
+            sidebarFavorites.setText("");
+            sidebarFavorites.getStyleClass().add("sidebar-heart-icon");
+            sidebarFavorites.setTooltip(new Tooltip("Favoritos"));
         }
     }
 

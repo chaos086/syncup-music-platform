@@ -1,0 +1,12 @@
+/* Color variables */
+:root {
+  -color-bg: #121212;
+  -color-panel: #181818;
+  -color-panel-2: #1a1a1a;
+  -color-border: #2a2a2a;
+  -color-text: #ffffff;
+  -color-text-muted: #b3b3b3;
+  -color-accent: #1db954;
+  -color-accent-hover: #1ed760;
+  -color-danger: #E22134;
+}

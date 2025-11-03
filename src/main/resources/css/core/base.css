@@ -1,0 +1,13 @@
+/* Base core theme: backgrounds, text, scrollbars, progress, tooltip */
+.root, BorderPane, VBox, HBox, StackPane, GridPane { -fx-background-color: -color-bg; }
+.label, .text, Label { -fx-text-fill: -color-text; }
+
+/* Scrollbars */
+.scroll-bar .thumb { -fx-background-color: #4a4a4a; -fx-background-radius: 4px; }
+.scroll-bar .thumb:hover { -fx-background-color: #6a6a6a; }
+
+/* Progress indicator */
+.progress-indicator { -fx-progress-color: -color-accent; }
+
+/* Tooltip */
+.tooltip { -fx-background-color: #2a2a2a; -fx-text-fill: #ffffff; -fx-background-radius: 4px; -fx-font-size: 12px; -fx-padding: 4px 8px; }

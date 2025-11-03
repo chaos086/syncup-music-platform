@@ -1,0 +1,7 @@
+/* Tables */
+.table-view { -fx-background-color: -color-bg; -fx-table-cell-border-color: transparent; }
+.table-view .column-header-background { -fx-background-color: -color-panel-2; }
+.table-view .column-header { -fx-background-color: -color-panel-2; -fx-text-fill: -color-text; -fx-font-weight: bold; -fx-border-color: #2a2a2a; -fx-border-width: 0 1 1 0; -fx-padding: 8px; }
+.table-view .table-cell { -fx-background-color: -color-bg; -fx-text-fill: -color-text; -fx-border-color: transparent; -fx-padding: 4px 8px; -fx-alignment: CENTER_LEFT; }
+.table-view .table-row-cell:hover { -fx-background-color: #1a1a1a; }
+.table-view .table-row-cell:selected { -fx-background-color: #1db95433; }

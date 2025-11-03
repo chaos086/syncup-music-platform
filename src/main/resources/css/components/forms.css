@@ -1,0 +1,6 @@
+/* Forms */
+.text-field, TextField, .password-field, PasswordField { -fx-background-color: #2a2a2a; -fx-text-fill: -color-text; -fx-prompt-text-fill: -color-text-muted; -fx-background-radius: 10px; -fx-border-color: transparent; -fx-border-radius: 10px; -fx-padding: 8px 12px; }
+.text-field:focused, .password-field:focused { -fx-border-color: -color-accent; -fx-border-width: 2px; }
+.input-error { -fx-border-color: -color-danger !important; -fx-border-width: 2px !important; }
+.helper-text { -fx-text-fill: -color-text-muted; -fx-font-size: 11px; }
+.helper-text.error { -fx-text-fill: -color-danger; }

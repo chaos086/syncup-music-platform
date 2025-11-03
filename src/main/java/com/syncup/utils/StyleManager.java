@@ -3,7 +3,7 @@ package com.syncup.utils;
 import javafx.scene.Scene;
 
 public class StyleManager {
-    private static final String MAIN_STYLESHEET = "/css/spotify-theme.css";
+    private static final String MAIN_STYLESHEET = "/css/themes/spotify-theme.css";
 
     public static void applySpotifyTheme(Scene scene) {
         if (scene == null) return;
@@ -14,10 +14,10 @@ public class StyleManager {
             if (url != null) {
                 scene.getStylesheets().add(url);
             } else {
-                scene.getRoot().setStyle("-fx-background-color:#191414;-fx-text-fill:white;-fx-font-family:Arial;");
+                scene.getRoot().setStyle("-fx-background-color:#121212;-fx-text-fill:white;-fx-font-family:Arial;");
             }
         } catch (Exception e) {
-            scene.getRoot().setStyle("-fx-background-color:#191414;-fx-text-fill:white;-fx-font-family:Arial;");
+            scene.getRoot().setStyle("-fx-background-color:#121212;-fx-text-fill:white;-fx-font-family:Arial;");
         }
     }
 }

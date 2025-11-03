@@ -5,16 +5,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.geometry.Insets;
 
 import com.syncup.models.Usuario;
 import com.syncup.models.Cancion;
 import com.syncup.data.DataManager;
 import com.syncup.algorithms.RecommendationEngine;
+import com.syncup.utils.StyleManager;
 
 import java.net.URL;
 import java.util.List;
@@ -35,6 +40,7 @@ public class UserDashboardController implements Initializable {
     @FXML private TableColumn<Cancion, Integer> yearColumn;
     @FXML private Button addToFavoritesButton;
     @FXML private Button generateDiscoveryButton;
+    @FXML private Button logoutButton;
     @FXML private Label statusLabel;
     @FXML private ProgressIndicator loadingIndicator;
 
@@ -139,6 +145,24 @@ public class UserDashboardController implements Initializable {
         });
         
         new Thread(task).start();
+    }
+
+    @FXML private void handleLogout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root, 1200, 800);
+            StyleManager.applySpotifyTheme(scene);
+            Stage stage = (Stage) (logoutButton != null ? logoutButton.getScene().getWindow() 
+                                  : statusLabel.getScene().getWindow());
+            stage.setScene(scene);
+            stage.setTitle("SyncUp - Login");
+            stage.centerOnScreen();
+            System.out.println("Usuario \"" + currentUser.getUsername() + "\" cerró sesión");
+        } catch (Exception ex) {
+            System.err.println("Error volviendo al login: " + ex);
+            mostrarError("Error cerrando sesión");
+        }
     }
 
     private void mostrarStatus(String m) {

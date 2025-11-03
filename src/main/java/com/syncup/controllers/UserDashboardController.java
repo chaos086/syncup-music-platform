@@ -50,7 +50,21 @@ public class UserDashboardController implements Initializable {
     private Usuario currentUser; private DataManager dataManager; private RecommendationEngine recommendationEngine;
     private List<Cancion> currentQueue = new ArrayList<>(); private int currentIndex=-1; private boolean isPlaying=false; private int durationSeconds=0; private int currentSeconds=0; private Timeline progressTimer;
 
-    @Override public void initialize(URL location, ResourceBundle resources){ dataManager=DataManager.getInstance(); recommendationEngine=new RecommendationEngine(); if(loadingIndicator!=null) loadingIndicator.setVisible(false); setupTables(); setupPlayer(); }
+    @Override public void initialize(URL location, ResourceBundle resources){ dataManager=DataManager.getInstance(); recommendationEngine=new RecommendationEngine(); if(loadingIndicator!=null) loadingIndicator.setVisible(false); setupTables(); setupPlayer(); setupFavoriteButton(); }
+
+    private void setupFavoriteButton(){
+        if(addToFavoritesButton != null){
+            // Cargar imagen remota del corazón de favoritos
+            Image favIcon = new Image("https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg", 20, 20, true, true, true);
+            ImageView favIconView = new ImageView(favIcon);
+            favIconView.setFitWidth(20);
+            favIconView.setFitHeight(20);
+            addToFavoritesButton.setGraphic(favIconView);
+            addToFavoritesButton.setText("");
+            addToFavoritesButton.getStyleClass().add("favorite-icon");
+            addToFavoritesButton.setTooltip(new Tooltip("Agregar a favoritos"));
+        }
+    }
 
     private void setupTables(){
         if(titleColumn!=null){ titleColumn.setCellValueFactory(new PropertyValueFactory<>("titulo")); titleColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }

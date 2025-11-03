@@ -13,17 +13,29 @@
             <Insets bottom="15" left="20" right="20" top="15" />
          </padding>
          
-         <Label fx:id="welcomeLabel" styleClass="dashboard-title" text="¡Bienvenido!">
-            <font>
-               <Font name="System Bold" size="24.0" />
-            </font>
-         </Label>
-         
-         <Label fx:id="userStatsLabel" styleClass="dashboard-subtitle" text="">
-            <font>
-               <Font size="14.0" />
-            </font>
-         </Label>
+         <HBox alignment="CENTER_LEFT">
+            <VBox>
+               <Label fx:id="welcomeLabel" styleClass="dashboard-title" text="¡Bienvenido!">
+                  <font>
+                     <Font name="System Bold" size="24.0" />
+                  </font>
+               </Label>
+               
+               <Label fx:id="userStatsLabel" styleClass="dashboard-subtitle" text="">
+                  <font>
+                     <Font size="14.0" />
+                  </font>
+               </Label>
+            </VBox>
+            
+            <Region HBox.hgrow="ALWAYS" />
+            
+            <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="logout-button" text="Cerrar Sesión">
+               <font>
+                  <Font size="12.0" />
+               </font>
+            </Button>
+         </HBox>
       </VBox>
    </top>
    

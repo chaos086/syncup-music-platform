@@ -61,29 +61,29 @@ public class UserDashboardController implements Initializable {
         if(favArtistColumn!=null) favArtistColumn.setCellValueFactory(new PropertyValueFactory<>("artista"));
         if(favGenreColumn!=null) favGenreColumn.setCellValueFactory(new PropertyValueFactory<>("genero"));
 
-        // Cover columns (table cell con ImageView 40x40)
-        if(coverColumn!=null) coverColumn.setCellFactory(makeCoverCellFactory());
-        if(favCoverColumn!=null) favCoverColumn.setCellFactory(makeCoverCellFactory());
-
-        if (songsTable != null) songsTable.setOnMouseClicked(e -> { Cancion c = songsTable.getSelectionModel().getSelectedItem(); if (c != null) startPlaybackFrom(c, songsTable.getItems()); });
-        if (favoritesTable != null) favoritesTable.setOnMouseClicked(e -> { Cancion c = favoritesTable.getSelectionModel().getSelectedItem(); if (c != null) startPlaybackFrom(c, favoritesTable.getItems()); });
-    }
-
-    private Callback<TableColumn<Cancion, Void>, TableCell<Cancion, Void>> makeCoverCellFactory(){
-        return col -> new TableCell<>(){
+        // Cover columns (ImageView 40x40): usa coverUrl si existe
+        Callback<TableColumn<Cancion, Void>, TableCell<Cancion, Void>> factory = col -> new TableCell<>(){
             private final ImageView iv = new ImageView();
             { iv.setFitWidth(40); iv.setFitHeight(40); iv.setPreserveRatio(true); }
             @Override protected void updateItem(Void item, boolean empty){
                 super.updateItem(item, empty);
                 if(empty){ setGraphic(null); }
                 else{
-                    Image img = new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true);
-                    iv.setImage(img);
-                    HBox box = new HBox(iv); box.setAlignment(Pos.CENTER);
-                    setGraphic(box);
+                    Cancion c = getTableView().getItems().get(getIndex());
+                    String url = c.getCoverUrl();
+                    Image img;
+                    if(url!=null && !url.isEmpty()) img = new Image(url,40,40,true,true, true);
+                    else img = new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true);
+                    iv.setImage(img); setGraphic(new HBox(iv)); ((HBox)getGraphic()).setAlignment(Pos.CENTER);
                 }
             }
-        }; }    
+        };
+        if(coverColumn!=null) coverColumn.setCellFactory(factory);
+        if(favCoverColumn!=null) favCoverColumn.setCellFactory(factory);
+
+        if (songsTable != null) songsTable.setOnMouseClicked(e -> { Cancion c = songsTable.getSelectionModel().getSelectedItem(); if (c != null) startPlaybackFrom(c, songsTable.getItems()); });
+        if (favoritesTable != null) favoritesTable.setOnMouseClicked(e -> { Cancion c = favoritesTable.getSelectionModel().getSelectedItem(); if (c != null) startPlaybackFrom(c, favoritesTable.getItems()); });
+    }
 
     private void setupPlayer(){ if (playerVolume!=null) playerVolume.setValue(70); if(playerSeek!=null) playerSeek.valueChangingProperty().addListener((o,oldV,newV)->{ if(!newV){ currentSeconds=(int)playerSeek.getValue(); updatePlayerTime(); }}); }
 
@@ -95,7 +95,7 @@ public class UserDashboardController implements Initializable {
 
     private void cargarFavoritos(){ if(currentUser==null||favoritesTable==null) return; Task<ObservableList<Cancion>> t=new Task<>(){ @Override protected ObservableList<Cancion> call(){ List<Cancion> fav=new ArrayList<>(); for(String id: currentUser.getCancionesFavoritas()){ Cancion c=dataManager.getCancionById(id); if(c!=null) fav.add(c);} return FXCollections.observableArrayList(fav);} }; t.setOnSucceeded(e-> favoritesTable.setItems(t.getValue())); new Thread(t).start(); }
 
-    private void cargarPerfil(){ if(currentUser==null) return; if(profileName!=null) profileName.setText(currentUser.getNombreCompleto()); if(profileUsername!=null) profileUsername.setText(currentUser.getUsername()); if(profileEmail!=null) profileEmail.setText(currentUser.getEmail()!=null?currentUser.getEmail():"—"); if(profileFollowing!=null) profileFollowing.setText(String.valueOf(currentUser.getSeguidosCount())); if(profileFollowers!=null) profileFollowers.setText(String.valueOf(currentUser.getSeguidoresCount())); if(albumsList!=null) albumsList.setItems(FXCollections.observableArrayList(dataManager.getAlbumsByUser(currentUser.getId()))); }
+    private void cargarPerfil(){ if(currentUser==null) return; if(profileName!=null) profileName.setText(currentUser.getNombreCompleto()); if(profileUsername!=null) profileUsername.setText(currentUser.getUsername()); if(profileEmail!=null) profileEmail.setText(currentUser.getEmail()!=null?currentUser.getEmail():"—"); if(profileFollowing!=null) profileFollowing.setText(String.valueOf(dataManager.getSeguidosCount(currentUser.getId()))); if(profileFollowers!=null) profileFollowers.setText(String.valueOf(dataManager.getSeguidoresCount(currentUser.getId()))); if(albumsList!=null) albumsList.setItems(FXCollections.observableArrayList(dataManager.getAlbumsByUser(currentUser.getId()))); }
 
     // Sidebar
     @FXML private void handleSidebarHome(){ toggleViews(catalogPane); }
@@ -118,13 +118,12 @@ public class UserDashboardController implements Initializable {
     @FXML private void handlePrev(){ if(currentQueue==null||currentQueue.isEmpty()) return; currentIndex=(currentIndex-1+currentQueue.size())%currentQueue.size(); applySong(currentQueue.get(currentIndex)); }
 
     private void startPlaybackFrom(Cancion c, List<Cancion> queue){ currentQueue=new ArrayList<>(queue); currentIndex=currentQueue.indexOf(c); if(currentIndex<0) currentIndex=0; isPlaying=true; btnPlayPause.setText("⏸"); applySong(currentQueue.get(currentIndex)); }
-    private void applySong(Cancion c){ if(playerTitle!=null) playerTitle.setText(c.getTitulo()); if(playerArtist!=null) playerArtist.setText(c.getArtista()); if(playerCover!=null) playerCover.setImage(new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true)); durationSeconds=210; currentSeconds=0; if(playerSeek!=null){ playerSeek.setMax(durationSeconds); playerSeek.setValue(0);} updatePlayerTime(); startTimer(); }
+    private void applySong(Cancion c){ if(playerTitle!=null) playerTitle.setText(c.getTitulo()); if(playerArtist!=null) playerArtist.setText(c.getArtista()); Image img; String url=c.getCoverUrl(); if(url!=null && !url.isEmpty()) img=new Image(url,40,40,true,true,true); else img=new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true); if(playerCover!=null) playerCover.setImage(img); durationSeconds= c.getDuracionSegundos()>0? c.getDuracionSegundos():210; currentSeconds=0; if(playerSeek!=null){ playerSeek.setMax(durationSeconds); playerSeek.setValue(0);} updatePlayerTime(); startTimer(); }
     private void startTimer(){ stopTimer(); progressTimer=new Timeline(new KeyFrame(Duration.seconds(1),e->{ if(!isPlaying) return; currentSeconds=Math.min(currentSeconds+1,durationSeconds); if(playerSeek!=null) playerSeek.setValue(currentSeconds); updatePlayerTime(); if(currentSeconds>=durationSeconds) handleNext(); })); progressTimer.setCycleCount(Timeline.INDEFINITE); progressTimer.play(); }
     private void stopTimer(){ if(progressTimer!=null){ progressTimer.stop(); progressTimer=null; } }
     private void updatePlayerTime(){ if(playerCurrent!=null) playerCurrent.setText(formatTime(currentSeconds)); if(playerTotal!=null) playerTotal.setText(formatTime(durationSeconds)); }
     private String formatTime(int s){ int m=s/60; int r=s%60; return String.format("%d:%02d",m,r); }
 
-    // Logout
     @FXML private void handleLogout(){ try{ FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/login.fxml")); Parent root=loader.load(); Scene scene=new Scene(root,1200,800); StyleManager.applySpotifyTheme(scene); Stage stage=(Stage) logoutButton.getScene().getWindow(); stage.setScene(scene); stage.setTitle("SyncUp - Login"); stage.centerOnScreen(); } catch(Exception ex){ System.err.println("Error volviendo al login: "+ex);} }
 
     private void setStatus(String m){ if(statusLabel!=null) statusLabel.setText(m); }

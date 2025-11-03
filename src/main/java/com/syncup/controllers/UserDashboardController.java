@@ -45,7 +45,7 @@ public class UserDashboardController implements Initializable {
     @FXML private ImageView playerCover; @FXML private Label playerTitle; @FXML private Label playerArtist; @FXML private Label playerCurrent; @FXML private Label playerTotal; @FXML private Slider playerSeek; @FXML private Slider playerVolume; @FXML private Button btnPrev; @FXML private Button btnPlayPause; @FXML private Button btnNext;
 
     // Sidebar buttons
-    @FXML private Button sidebarFavorites;
+    @FXML private Button sidebarFavorites; @FXML private Button sidebarHome; @FXML private Button sidebarSearch;
 
     // Perfil
     @FXML private Label profileName; @FXML private Label profileUsername; @FXML private Label profileEmail; @FXML private Label profileFollowing; @FXML private Label profileFollowers; @FXML private ListView<String> albumsList;
@@ -57,7 +57,6 @@ public class UserDashboardController implements Initializable {
 
     private void setupFavoriteButton(){
         if(addToFavoritesButton != null){
-            // Botón bajo la tabla: texto + emoji (como ya quedó perfecto)
             addToFavoritesButton.setText("♥ Agregar a Favoritos");
             addToFavoritesButton.setGraphic(null);
             addToFavoritesButton.getStyleClass().removeAll("favorite-icon");
@@ -65,30 +64,29 @@ public class UserDashboardController implements Initializable {
         }
     }
 
+    private void applyFullImage(Button btn, String url){
+        if(btn==null) return;
+        Image img = new Image(url, 48, 48, false, true, true); // cargar apropiado a botón 48px
+        ImageView iv = new ImageView(img);
+        iv.setFitWidth(48);
+        iv.setFitHeight(48);
+        iv.setPreserveRatio(false); // cubrir todo
+        btn.setGraphic(iv);
+        btn.setText("");
+        btn.getStyleClass().add("sidebar-full-image");
+    }
+
     private void setupSidebarIcons(){
-        // Botón de favoritos de la sidebar con imagen remota que ocupa todo el espacio
-        if(sidebarFavorites != null){
-            try {
-                // Cargar imagen remota del corazón
-                Image favIcon = new Image("https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg", 40, 40, false, true, true);
-                ImageView favIconView = new ImageView(favIcon);
-                favIconView.setFitWidth(40);
-                favIconView.setFitHeight(40);
-                favIconView.setPreserveRatio(false); // Llenar todo el espacio del botón
-                sidebarFavorites.setGraphic(favIconView);
-                sidebarFavorites.setText(""); // Sin texto
-                sidebarFavorites.getStyleClass().add("sidebar-heart-icon");
-                sidebarFavorites.setTooltip(new Tooltip("Favoritos"));
-                System.out.println("Remote heart icon loaded successfully for sidebar favorites button");
-            } catch (Exception e) {
-                System.err.println("Error loading remote heart icon, using fallback: " + e.getMessage());
-                // Fallback: usar emoji si falla la carga
-                sidebarFavorites.setText("♥");
-                sidebarFavorites.setGraphic(null);
-            }
-        } else {
-            System.err.println("sidebarFavorites button not found - check fx:id in FXML");
-        }
+        // Favoritos (rojo anterior) – seguir usando imagen remota y cubrir 100%
+        applyFullImage(sidebarFavorites, "https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg");
+        if(sidebarFavorites!=null) sidebarFavorites.setTooltip(new Tooltip("Favoritos"));
+
+        // Home e Search con corazón verde
+        String green = "https://www.clker.com/cliparts/S/Z/r/Q/V/3/green-heart-icon-md.png";
+        applyFullImage(sidebarHome, green);
+        if(sidebarHome!=null) sidebarHome.setTooltip(new Tooltip("Inicio"));
+        applyFullImage(sidebarSearch, green);
+        if(sidebarSearch!=null) sidebarSearch.setTooltip(new Tooltip("Buscar"));
     }
 
     private void setupTables(){
@@ -102,12 +100,11 @@ public class UserDashboardController implements Initializable {
         if(favGenreColumn!=null){ favGenreColumn.setCellValueFactory(new PropertyValueFactory<>("genero")); favGenreColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
         if(favDescColumn!=null){ favDescColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion")); favDescColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
 
-        // Imágenes: llenar el espacio 48x48, centradas
         Callback<TableColumn<Cancion, Void>, TableCell<Cancion, Void>> factory = TableCells.coverCellFactory();
         if(coverColumn!=null) coverColumn.setCellFactory(factory);
         if(favCoverColumn!=null) favCoverColumn.setCellFactory(factory);
 
-        if (songsTable != null) songsTable.setFixedCellSize(52); // altura consistente
+        if (songsTable != null) songsTable.setFixedCellSize(52);
         if (favoritesTable != null) favoritesTable.setFixedCellSize(52);
 
         if (songsTable != null) songsTable.setOnMouseClicked(e -> { Cancion c = songsTable.getSelectionModel().getSelectedItem(); if (c != null) startPlaybackFrom(c, songsTable.getItems()); });
@@ -135,13 +132,11 @@ public class UserDashboardController implements Initializable {
 
     private void toggleViews(VBox toShow){ if(catalogPane!=null){ catalogPane.setVisible(false); catalogPane.setManaged(false);} if(favoritesPane!=null){ favoritesPane.setVisible(false); favoritesPane.setManaged(false);} if(profilePane!=null){ profilePane.setVisible(false); profilePane.setManaged(false);} if(toShow!=null){ toShow.setVisible(true); toShow.setManaged(true);} }
 
-    // Search & Discovery
     @FXML private void handleSearch(){ if(searchField==null||songsTable==null) return; String q=searchField.getText().trim().toLowerCase(); if(q.isEmpty()){ cargarCanciones(); return; } List<Cancion> res = dataManager.getAllCanciones().stream().filter(c-> c.getTitulo().toLowerCase().contains(q)||c.getArtista().toLowerCase().contains(q)||c.getGenero().toLowerCase().contains(q)).collect(Collectors.toList()); songsTable.setItems(FXCollections.observableArrayList(res)); }
     @FXML private void handleGenerateDiscovery(){ if(currentUser==null) return; Task<List<Cancion>> t=new Task<>(){ @Override protected List<Cancion> call(){ return recommendationEngine.generarDescubrimientoSemanal(currentUser.getId(),20);} }; t.setOnSucceeded(e->{ List<Cancion> recs=t.getValue(); if(songsTable!=null) songsTable.setItems(FXCollections.observableArrayList(recs)); currentQueue=recs; currentIndex=-1;}); new Thread(t).start(); }
 
     @FXML private void handleAddToFavorites(){ if(currentUser==null||songsTable==null) return; Cancion sel=songsTable.getSelectionModel().getSelectedItem(); if(sel==null){ setStatus("Selecciona una canción"); return;} boolean ok=currentUser.agregarCancionFavorita(sel.getId()); if(ok){ setStatus("Añadida a favoritos"); cargarFavoritos(); actualizarUI(); } else setStatus("Ya estaba en favoritos"); }
 
-    // Player controls (simulados)
     @FXML private void handlePlayPause(){ if(currentIndex<0 && songsTable!=null && songsTable.getItems()!=null && !songsTable.getItems().isEmpty()){ startPlaybackFrom(songsTable.getItems().get(0), songsTable.getItems()); return;} isPlaying=!isPlaying; btnPlayPause.setText(isPlaying?"⏸":"▶"); if(isPlaying) startTimer(); else stopTimer(); }
     @FXML private void handleNext(){ if(currentQueue==null||currentQueue.isEmpty()) return; currentIndex=(currentIndex+1)%currentQueue.size(); applySong(currentQueue.get(currentIndex)); }
     @FXML private void handlePrev(){ if(currentQueue==null||currentQueue.isEmpty()) return; currentIndex=(currentIndex-1+currentQueue.size())%currentQueue.size(); applySong(currentQueue.get(currentIndex)); }

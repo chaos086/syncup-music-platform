@@ -1,0 +1,31 @@
+package com.syncup.data;
+
+import com.syncup.models.Usuario;
+
+import java.util.regex.Pattern;
+
+public class DataManager {
+    // ... resto de la clase existente ...
+
+    /**
+     * Crea un usuario no admin desde el registro.
+     * Retorna false si el username ya existe o si los datos no son válidos.
+     */
+    public synchronized boolean createUser(String username, String password, String nombre, String email) {
+        if (username == null || username.trim().isEmpty()) return false;
+        if (username.contains(" ")) return false;
+        if (password == null || password.trim().length() < 4) return false;
+        if (usuariosByUsername.containsKey(username)) return false;
+        if (email == null || !EMAIL_PATTERN.matcher(email.trim()).matches()) return false;
+
+        Usuario u = new Usuario(username.trim(), password.trim());
+        u.setNombreCompleto(nombre == null ? "" : nombre.trim());
+        u.setEmail(email.trim());
+        u.setEsAdmin(false);
+        return addUsuario(u);
+    }
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+    );
+}

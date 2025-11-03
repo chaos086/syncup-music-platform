@@ -11,33 +11,45 @@
     TextField email = new TextField(); email.setPromptText("Email");
     PasswordField pass = new PasswordField(); pass.setPromptText("Contraseña");
 
-    Label help = new Label("Mín. 6 caracteres, 1 mayúscula, 1 número");
-    help.getStyleClass().add("helper-text");
+    Label helpUser = new Label(""); helpUser.getStyleClass().add("helper-text");
+    Label helpEmail = new Label(""); helpEmail.getStyleClass().add("helper-text");
+    Label helpPass = new Label("Mín. 6 caracteres, 1 mayúscula, 1 número"); helpPass.getStyleClass().add("helper-text");
 
     VBox box = new VBox(8,
             new Label("Nombre"), name,
-            new Label("Username"), user,
-            new Label("Email"), email,
-            new Label("Contraseña"), pass,
-            help);
+            new Label("Username"), user, helpUser,
+            new Label("Email"), email, helpEmail,
+            new Label("Contraseña"), pass, helpPass);
     pane.setContent(box);
 
     // Validación en vivo
     name.textProperty().addListener((o,ov,nv)-> toggleError(name, nv.isBlank()));
-    user.textProperty().addListener((o,ov,nv)-> toggleError(user, nv.isBlank() || nv.contains(" ") || nv.length()<3));
-    email.textProperty().addListener((o,ov,nv)-> toggleError(email, !nv.isBlank() && !nv.contains("@")));
+    user.textProperty().addListener((o,ov,nv)-> {
+        boolean formatBad = nv.isBlank() || nv.contains(" ") || nv.length()<3;
+        boolean duplicate = userRepo.findByUsername(nv).isPresent();
+        toggleError(user, formatBad || duplicate);
+        helpUser.setText( duplicate? "Username ya está en uso" : (formatBad? "Mín. 3, sin espacios" : "") );
+        setErrorStyle(helpUser, formatBad || duplicate);
+    });
+    email.textProperty().addListener((o,ov,nv)-> {
+        boolean fmt = !nv.isBlank() && !nv.contains("@");
+        boolean duplicate = !nv.isBlank() && userRepo.findByEmail(nv).isPresent();
+        toggleError(email, fmt || duplicate);
+        helpEmail.setText( duplicate? "Email ya está registrado" : (fmt? "Formato inválido" : "") );
+        setErrorStyle(helpEmail, fmt || duplicate);
+    });
     pass.textProperty().addListener((o,ov,nv)-> {
         boolean ok = isStrong(nv);
         toggleError(pass, !ok);
-        help.getStyleClass().remove("error");
-        if(!ok) help.getStyleClass().add("error");
+        helpPass.setText("Mín. 6, 1 mayúscula, 1 número" + (ok? "" : " — no cumple"));
+        setErrorStyle(helpPass, !ok);
     });
 
-    // Deshabilitar OK si hay errores
     final Button okBtn = (Button) pane.lookupButton(ButtonType.OK);
     okBtn.addEventFilter(javafx.event.ActionEvent.ACTION, ev -> {
-        boolean err = name.getText().isBlank() || user.getText().isBlank() || user.getText().contains(" ") || user.getText().length()<3
-                || (!email.getText().isBlank() && !email.getText().contains("@"))
+        boolean err = name.getText().isBlank()
+                || user.getText().isBlank() || user.getText().contains(" ") || user.getText().length()<3 || userRepo.findByUsername(user.getText()).isPresent()
+                || (!email.getText().isBlank() && (!email.getText().contains("@") || userRepo.findByEmail(email.getText()).isPresent()))
                 || !isStrong(pass.getText());
         if(err){ ev.consume(); }
     });
@@ -58,14 +70,7 @@
     });
 }
 
-private void toggleError(TextField tf, boolean error){
-    if(error){ if(!tf.getStyleClass().contains("input-error")) tf.getStyleClass().add("input-error"); }
-    else tf.getStyleClass().remove("input-error");
-}
-
-private boolean isStrong(String p){
-    if(p==null || p.length()<6) return false;
-    boolean hasUpper=false, hasDigit=false;
-    for(char c: p.toCharArray()){ if(Character.isUpperCase(c)) hasUpper=true; if(Character.isDigit(c)) hasDigit=true; }
-    return hasUpper && hasDigit;
+private void setErrorStyle(Label l, boolean error){
+    l.getStyleClass().remove("error");
+    if(error) l.getStyleClass().add("error");
 }

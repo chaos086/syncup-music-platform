@@ -53,7 +53,28 @@ public class UserDashboardController implements Initializable {
     private Usuario currentUser; private DataManager dataManager; private RecommendationEngine recommendationEngine;
     private List<Cancion> currentQueue = new ArrayList<>(); private int currentIndex=-1; private boolean isPlaying=false; private int durationSeconds=0; private int currentSeconds=0; private Timeline progressTimer;
 
-    @Override public void initialize(URL location, ResourceBundle resources){ dataManager=DataManager.getInstance(); recommendationEngine=new RecommendationEngine(); if(loadingIndicator!=null) loadingIndicator.setVisible(false); setupTables(); setupPlayer(); setupFavoriteButton(); setupSidebarIcons(); }
+    @Override public void initialize(URL location, ResourceBundle resources){ 
+        dataManager=DataManager.getInstance(); 
+        recommendationEngine=new RecommendationEngine(); 
+        if(loadingIndicator!=null) loadingIndicator.setVisible(false); 
+        
+        // Apply Spotify theme to current scene if available
+        Platform.runLater(() -> {
+            try {
+                if (logoutButton != null && logoutButton.getScene() != null) {
+                    StyleManager.applySpotifyTheme(logoutButton.getScene());
+                    System.out.println("Spotify theme applied to dashboard scene");
+                }
+            } catch (Exception e) {
+                System.err.println("Error applying theme to dashboard: " + e.getMessage());
+            }
+        });
+        
+        setupTables(); 
+        setupPlayer(); 
+        setupFavoriteButton(); 
+        setupSidebarIcons(); 
+    }
 
     private void setupFavoriteButton(){
         if(addToFavoritesButton != null){
@@ -64,11 +85,10 @@ public class UserDashboardController implements Initializable {
         }
     }
 
-<<<<<<< HEAD
     private void applyFullImage(Button btn, String url){
         if(btn==null) return;
         try {
-            Image img = new Image(url, 48, 48, false, true, true); // cargar apropiado a botón 48px
+            Image img = new Image(url, 48, 48, false, true, true);
             ImageView iv = new ImageView(img);
             iv.setFitWidth(48);
             iv.setFitHeight(48);
@@ -81,31 +101,6 @@ public class UserDashboardController implements Initializable {
             System.err.println("Error loading remote image for " + btn.getId() + ": " + e.getMessage());
             btn.setText("♥"); // fallback emoji
             btn.setGraphic(null);
-=======
-    private void setupSidebarIcons(){
-        // Botón de favoritos de la sidebar con imagen remota que ocupa todo el espacio
-        if(sidebarFavorites != null){
-            try {
-                // Cargar imagen remota del corazón
-                Image favIcon = new Image("https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg", 40, 40, false, true, true);
-                ImageView favIconView = new ImageView(favIcon);
-                favIconView.setFitWidth(40);
-                favIconView.setFitHeight(40);
-                favIconView.setPreserveRatio(false); // Llenar todo el espacio del botón
-                sidebarFavorites.setGraphic(favIconView);
-                sidebarFavorites.setText(""); // Sin texto
-                sidebarFavorites.getStyleClass().add("sidebar-heart-icon");
-                sidebarFavorites.setTooltip(new Tooltip("Favoritos"));
-                System.out.println("Remote heart icon loaded successfully for sidebar favorites button");
-            } catch (Exception e) {
-                System.err.println("Error loading remote heart icon, using fallback: " + e.getMessage());
-                // Fallback: usar emoji si falla la carga
-                sidebarFavorites.setText("♥");
-                sidebarFavorites.setGraphic(null);
-            }
-        } else {
-            System.err.println("sidebarFavorites button not found - check fx:id in FXML");
->>>>>>> parent of eb5e056 (Update UserDashboardController.java)
         }
     }
 
@@ -181,7 +176,7 @@ public class UserDashboardController implements Initializable {
     private void updatePlayerTime(){ if(playerCurrent!=null) playerCurrent.setText(formatTime(currentSeconds)); if(playerTotal!=null) playerTotal.setText(formatTime(durationSeconds)); }
     private String formatTime(int s){ int m=s/60; int r=s%60; return String.format("%d:%02d",m,r); }
 
-    @FXML private void handleLogout(){ try{ FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/login.fxml")); Parent root=loader.load(); Scene scene=new Scene(root,1200,800); StyleManager.applySpotifyTheme(scene); Stage stage=(Stage) logoutButton.getScene().getWindow(); stage.setScene(scene); stage.setTitle("SyncUp - Login"); stage.centerOnScreen(); } catch(Exception ex){ System.err.println("Error volviendo al login: "+ex);} }
+    @FXML private void handleLogout(){ try{ FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/login.fxml")); Parent root=loader.load(); Scene scene=new Scene(root,1200,800); StyleManager.applySpotifyTheme(scene); Stage stage=(Stage) logoutButton.getScene().getWindow(); stage.setScene(scene); stage.setTitle("SyncUp - Login"); stage.centerOnScreen(); System.out.println("Navigated back to login with Spotify theme applied"); } catch(Exception ex){ System.err.println("Error volviendo al login: "+ex);} }
 
     private void setStatus(String m){ if(statusLabel!=null) statusLabel.setText(m); }
 }

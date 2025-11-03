@@ -10,13 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -113,15 +107,17 @@ public class LoginController implements Initializable {
                 try {
                     userRepo.create(name.getText(), user.getText(), email.getText(), pass.getText());
                     showError("Cuenta creada correctamente. Ya puedes iniciar sesión.");
-                } catch (IllegalStateException dup) {
-                    showError(dup.getMessage());
-                } catch (IllegalArgumentException bad) {
-                    showError(bad.getMessage());
-                } catch (Exception ex) {
-                    showError("Error creando usuario");
-                }
+                } catch (IllegalStateException dup) { showError(dup.getMessage()); }
+                catch (IllegalArgumentException bad) { showError(bad.getMessage()); }
+                catch (Exception ex) { showError("Error creando usuario"); }
             }
         });
+    }
+
+    // FIX: add missing helper used by listeners
+    private void toggleError(TextField tf, boolean error){
+        if(error){ if(!tf.getStyleClass().contains("input-error")) tf.getStyleClass().add("input-error"); }
+        else tf.getStyleClass().remove("input-error");
     }
 
     private void setErrorStyle(Label l, boolean error){ l.getStyleClass().remove("error"); if(error) l.getStyleClass().add("error"); }

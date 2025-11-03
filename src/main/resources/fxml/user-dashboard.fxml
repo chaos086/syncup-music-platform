@@ -10,8 +10,6 @@
    <!-- Sidebar a la izquierda -->
    <left>
       <VBox styleClass="sidebar-modern" spacing="12">
-         <!-- Botón Perfil (cuadro morado) -->
-         <Label fx:id="btnProfile" text="🟪" styleClass="sidebar-button" onMouseClicked="#handleSidebarProfile" />
          <Label text="⌂" styleClass="sidebar-button" onMouseClicked="#handleSidebarHome" />
          <Label text="♥" styleClass="sidebar-button" onMouseClicked="#handleSidebarFavorites" />
          <Label text="✨" styleClass="sidebar-button" onMouseClicked="#handleSidebarDiscover" />
@@ -23,6 +21,9 @@
       <VBox styleClass="dashboard-header" spacing="10">
          <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
          <HBox alignment="CENTER_LEFT">
+            <!-- Botón Perfil en la esquina superior izquierda -->
+            <Button fx:id="btnProfileTop" text="🧑‍🦰" onAction="#handleSidebarProfile" styleClass="sidebar-button" />
+            <Region prefWidth="12" />
             <VBox>
                <Label fx:id="welcomeLabel" styleClass="dashboard-title" text="¡Bienvenido!" />
                <Label fx:id="userStatsLabel" styleClass="dashboard-subtitle" text="" />
@@ -49,11 +50,12 @@
                <Label styleClass="section-title" text="Catálogo Musical" />
                <TableView fx:id="songsTable" VBox.vgrow="ALWAYS">
                   <columns>
-                     <TableColumn fx:id="coverColumn" prefWidth="60.0" text="" />
+                     <TableColumn fx:id="coverColumn" prefWidth="60.0" text="Logo" />
                      <TableColumn fx:id="titleColumn" prefWidth="250.0" text="Título" />
                      <TableColumn fx:id="artistColumn" prefWidth="200.0" text="Artista" />
                      <TableColumn fx:id="genreColumn" prefWidth="150.0" text="Género" />
                      <TableColumn fx:id="yearColumn" prefWidth="100.0" text="Año" />
+                     <TableColumn fx:id="descColumn" prefWidth="280.0" text="Descripción" />
                   </columns>
                </TableView>
                <HBox alignment="CENTER_RIGHT">
@@ -65,10 +67,11 @@
                <Label styleClass="section-title" text="Mis Favoritos" />
                <TableView fx:id="favoritesTable" VBox.vgrow="ALWAYS">
                   <columns>
-                     <TableColumn fx:id="favCoverColumn" prefWidth="60.0" text="" />
+                     <TableColumn fx:id="favCoverColumn" prefWidth="60.0" text="Logo" />
                      <TableColumn fx:id="favTitleColumn" prefWidth="250.0" text="Título" />
                      <TableColumn fx:id="favArtistColumn" prefWidth="200.0" text="Artista" />
                      <TableColumn fx:id="favGenreColumn" prefWidth="150.0" text="Género" />
+                     <TableColumn fx:id="favDescColumn" prefWidth="280.0" text="Descripción" />
                   </columns>
                </TableView>
             </VBox>

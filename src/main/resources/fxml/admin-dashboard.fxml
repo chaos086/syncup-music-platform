@@ -14,6 +14,7 @@
                <Label fx:id="adminStatsLabel" styleClass="app-subtitle" text="Cargando..." />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="logout-button" text="Cerrar Sesión" />
             <ProgressIndicator fx:id="loadingIndicator" prefHeight="24.0" prefWidth="24.0" visible="false" />
             <Label fx:id="statusLabel" styleClass="success-message" text="Sistema Operativo" />
             <padding>

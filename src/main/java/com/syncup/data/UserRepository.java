@@ -11,8 +11,8 @@ import java.util.*;
 public class UserRepository {
     private final JsonDataStore store;
     private final Map<String, Usuario> byId = new LinkedHashMap<>();
-    private final Map<String, String> usernameToId = new HashMap<>(); // lower->id
-    private final Map<String, String> emailToId = new HashMap<>(); // lower->id
+    private final Map<String, String> usernameToId = new HashMap<>();
+    private final Map<String, String> emailToId = new HashMap<>();
     private long counter = 1;
 
     public UserRepository(){
@@ -28,9 +28,10 @@ public class UserRepository {
             String username = String.valueOf(m.getOrDefault("username",""));
             String email = String.valueOf(m.getOrDefault("email",""));
             String name = String.valueOf(m.getOrDefault("name",""));
-            String pass = String.valueOf(m.getOrDefault("passwordHash",""));
+            String hash = String.valueOf(m.getOrDefault("passwordHash",""));
             if(id.isBlank()||username.isBlank()) continue;
-            Usuario u = new Usuario(id, username, name, email, pass);
+            Usuario u = new Usuario(id, username, hash, name, email);
+            u.setPasswordHash(hash);
             byId.put(id, u);
             usernameToId.put(username.toLowerCase(Locale.ROOT), id);
             if(email!=null && !email.isBlank()) emailToId.put(email.toLowerCase(Locale.ROOT), id);
@@ -47,7 +48,7 @@ public class UserRepository {
                 m.put("username", u.getUsername());
                 m.put("email", u.getEmail());
                 m.put("name", u.getNombreCompleto());
-                m.put("passwordHash", u.getPasswordHash());
+                m.put("passwordHash", u.getPasswordHash()!=null? u.getPasswordHash(): "");
                 out.add(m);
             }
             store.saveUsers(out);
@@ -90,7 +91,8 @@ public class UserRepository {
 
         String id = String.format("u_%04d", counter++);
         String hash = PasswordHasher.sha256(rawPassword);
-        Usuario u = new Usuario(id, username, name==null?"":name, email==null?"":email, hash);
+        Usuario u = new Usuario(id, username, hash, name==null?"":name, email==null?"":email);
+        u.setPasswordHash(hash);
         byId.put(id, u);
         usernameToId.put(ukey, id);
         if(email!=null && !email.isBlank()) emailToId.put(email.toLowerCase(Locale.ROOT), id);
@@ -102,6 +104,8 @@ public class UserRepository {
         Optional<Usuario> ou = findByUsernameOrEmail(userOrEmail);
         if(ou.isEmpty()) return false;
         String calc = PasswordHasher.sha256(rawPassword);
-        return calc.equals(ou.get().getPasswordHash());
+        String stored = ou.get().getPasswordHash();
+        if(stored==null || stored.isBlank()) return false; // forzar login con esquema nuevo
+        return calc.equals(stored);
     }
 }

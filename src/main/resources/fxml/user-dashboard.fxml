@@ -3,175 +3,86 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.syncup.controllers.UserDashboardController">
    <top>
-      <VBox styleClass="dashboard-container">
-         <HBox alignment="CENTER_LEFT" spacing="20.0">
-            <VBox alignment="CENTER_LEFT">
-               <Label fx:id="welcomeLabel" styleClass="app-title" text="Bienvenido a SyncUp" />
-               <Label fx:id="userStatsLabel" styleClass="app-subtitle" text="Cargando estadisticas..." />
-            </VBox>
-            <Region HBox.hgrow="ALWAYS" />
-            <ProgressIndicator fx:id="loadingIndicator" prefHeight="24.0" prefWidth="24.0" visible="false" />
-            <Label fx:id="statusLabel" styleClass="success-message" text="Listo" />
-            <padding>
-               <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
-            </padding>
-         </HBox>
+      <!-- Header del Usuario -->
+      <VBox styleClass="dashboard-header" spacing="10">
+         <padding>
+            <Insets bottom="15" left="20" right="20" top="15" />
+         </padding>
+         
+         <Label fx:id="welcomeLabel" styleClass="dashboard-title" text="¡Bienvenido!">
+            <font>
+               <Font name="System Bold" size="24.0" />
+            </font>
+         </Label>
+         
+         <Label fx:id="userStatsLabel" styleClass="dashboard-subtitle" text="">
+            <font>
+               <Font size="14.0" />
+            </font>
+         </Label>
       </VBox>
    </top>
    
    <center>
-      <TabPane tabClosingPolicy="UNAVAILABLE">
+      <!-- Contenido Principal -->
+      <VBox spacing="20">
+         <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+         </padding>
          
-         <!-- Tab de Perfil -->
-         <Tab text="Mi Perfil">
-            <VBox spacing="20.0" styleClass="content-panel">
-               <VBox spacing="15.0">
-                  <Label styleClass="section-title" text="Informacion Personal" />
-                  
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label styleClass="field-label" text="Nombre Completo:" />
-                     <TextField fx:id="nombreCompletoField" prefWidth="250.0" promptText="Ingresa tu nombre" styleClass="login-field" />
-                  </HBox>
-                  
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label styleClass="field-label" text="Email:" />
-                     <TextField fx:id="emailField" prefWidth="250.0" promptText="Ingresa tu email" styleClass="login-field" />
-                  </HBox>
-                  
-                  <Button fx:id="saveProfileButton" onAction="#handleSaveProfile" styleClass="primary-button" text="Guardar Cambios" />
-               </VBox>
-               
-               <Separator />
-               
-               <!-- Seccion de Favoritos -->
-               <VBox spacing="15.0">
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label styleClass="section-title" text="Mis Canciones Favoritas" />
-                     <Region HBox.hgrow="ALWAYS" />
-                     <Button fx:id="removeFavoriteButton" onAction="#handleRemoveFavorite" styleClass="danger-button" text="Remover" />
-                     <Button fx:id="exportFavoritesButton" onAction="#handleExportFavorites" styleClass="secondary-button" text="Exportar CSV" />
-                  </HBox>
-                  
-                  <TableView fx:id="favoritesTable" prefHeight="300.0">
-                     <columns>
-                        <TableColumn fx:id="favTitleColumn" prefWidth="200.0" text="Titulo" />
-                        <TableColumn fx:id="favArtistColumn" prefWidth="150.0" text="Artista" />
-                        <TableColumn fx:id="favGenreColumn" prefWidth="100.0" text="Genero" />
-                     </columns>
-                  </TableView>
-               </VBox>
-               
-               <padding>
-                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-               </padding>
-            </VBox>
-         </Tab>
-         
-         <!-- Tab de Descubrimiento -->
-         <Tab text="Descubrir">
-            <VBox spacing="20.0" styleClass="content-panel">
-               
-               <VBox spacing="15.0">
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label styleClass="section-title" text="Descubrimiento Semanal" />
-                     <Region HBox.hgrow="ALWAYS" />
-                     <Button fx:id="generateDiscoveryButton" onAction="#handleGenerateDiscovery" styleClass="primary-button" text="Generar Playlist" />
-                  </HBox>
-                  
-                  <Label styleClass="section-subtitle" text="Musica personalizada basada en tus gustos" />
-                  
-                  <TableView fx:id="discoveryTable" prefHeight="200.0">
-                     <columns>
-                        <TableColumn fx:id="discTitleColumn" prefWidth="200.0" text="Titulo" />
-                        <TableColumn fx:id="discArtistColumn" prefWidth="150.0" text="Artista" />
-                        <TableColumn fx:id="discGenreColumn" prefWidth="100.0" text="Genero" />
-                     </columns>
-                  </TableView>
-                  
-                  <Button fx:id="addToFavoritesButton" onAction="#handleAddToFavorites" styleClass="secondary-button" text="Agregar a Favoritos" />
-               </VBox>
-               
-               <padding>
-                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-               </padding>
-            </VBox>
-         </Tab>
-         
-         <!-- Tab de Busqueda -->
-         <Tab text="Buscar">
-            <VBox spacing="20.0" styleClass="content-panel">
-               
-               <VBox spacing="10.0">
-                  <Label styleClass="section-title" text="Busqueda de Musica" />
-                  
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <ComboBox fx:id="searchTypeComboBox" prefWidth="120.0" />
-                     <TextField fx:id="searchField" prefWidth="300.0" promptText="Escribe para buscar..." styleClass="login-field" />
-                     <Button fx:id="searchButton" onAction="#handleSearch" styleClass="primary-button" text="Buscar" />
-                  </HBox>
-               </VBox>
-               
-               <VBox spacing="10.0">
-                  <Label styleClass="section-title" text="Resultados" />
-                  
-                  <TableView fx:id="searchResultsTable" prefHeight="400.0">
-                     <columns>
-                        <TableColumn fx:id="searchTitleColumn" prefWidth="200.0" text="Titulo" />
-                        <TableColumn fx:id="searchArtistColumn" prefWidth="150.0" text="Artista" />
-                     </columns>
-                  </TableView>
-               </VBox>
-               
-               <padding>
-                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-               </padding>
-            </VBox>
-         </Tab>
-         
-         <!-- Tab Social -->
-         <Tab text="Social">
-            <HBox spacing="20.0" styleClass="content-panel">
-               
-               <VBox spacing="15.0" HBox.hgrow="ALWAYS">
-                  <Label styleClass="section-title" text="Usuarios que Sigo" />
-                  
-                  <TableView fx:id="followingTable" prefHeight="300.0">
-                     <columns>
-                        <TableColumn fx:id="followingUsernameColumn" prefWidth="120.0" text="Usuario" />
-                        <TableColumn fx:id="followingNameColumn" prefWidth="150.0" text="Nombre" />
-                     </columns>
-                  </TableView>
-                  
-                  <Button fx:id="unfollowUserButton" onAction="#handleUnfollowUser" styleClass="danger-button" text="Dejar de Seguir" />
-               </VBox>
-               
-               <VBox spacing="15.0" HBox.hgrow="ALWAYS">
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <Label styleClass="section-title" text="Usuarios Sugeridos" />
-                     <Region HBox.hgrow="ALWAYS" />
-                     <Button fx:id="refreshSuggestionsButton" onAction="#handleRefreshSuggestions" styleClass="secondary-button" text="Actualizar" />
-                  </HBox>
-                  
-                  <TableView fx:id="suggestedUsersTable" prefHeight="300.0">
-                     <columns>
-                        <TableColumn fx:id="suggestedUsernameColumn" prefWidth="120.0" text="Usuario" />
-                        <TableColumn fx:id="suggestedNameColumn" prefWidth="150.0" text="Nombre" />
-                     </columns>
-                  </TableView>
-                  
-                  <Button fx:id="followUserButton" onAction="#handleFollowUser" styleClass="primary-button" text="Seguir Usuario" />
-               </VBox>
-               
-               <padding>
-                  <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-               </padding>
+         <!-- Sección de Búsqueda -->
+         <VBox spacing="10">
+            <Label styleClass="section-title" text="Explorar Música">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            
+            <HBox spacing="10">
+               <TextField fx:id="searchField" prefWidth="300.0" promptText="Buscar por título, artista o género..." />
+               <Button fx:id="searchButton" onAction="#handleSearch" styleClass="primary-button" text="Buscar" />
+               <Button fx:id="generateDiscoveryButton" onAction="#handleGenerateDiscovery" styleClass="secondary-button" text="Descubrimiento Semanal" />
             </HBox>
-         </Tab>
+         </VBox>
          
-      </TabPane>
+         <!-- Tabla de Canciones -->
+         <VBox spacing="10" VBox.vgrow="ALWAYS">
+            <HBox>
+               <Label styleClass="section-title" text="Catálogo Musical">
+                  <font>
+                     <Font name="System Bold" size="16.0" />
+                  </font>
+               </Label>
+               <Region HBox.hgrow="ALWAYS" />
+               <Button fx:id="addToFavoritesButton" onAction="#handleAddToFavorites" styleClass="favorite-button" text="♥ Agregar a Favoritos" />
+            </HBox>
+            
+            <TableView fx:id="songsTable" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="titleColumn" prefWidth="250.0" text="Título" />
+                  <TableColumn fx:id="artistColumn" prefWidth="200.0" text="Artista" />
+                  <TableColumn fx:id="genreColumn" prefWidth="150.0" text="Género" />
+                  <TableColumn fx:id="yearColumn" prefWidth="100.0" text="Año" />
+               </columns>
+            </TableView>
+         </VBox>
+      </VBox>
    </center>
    
+   <bottom>
+      <!-- Barra de Estado -->
+      <HBox styleClass="status-bar" alignment="CENTER_LEFT" spacing="10">
+         <padding>
+            <Insets bottom="10" left="20" right="20" top="10" />
+         </padding>
+         
+         <Label fx:id="statusLabel" text="Listo" />
+         <Region HBox.hgrow="ALWAYS" />
+         <ProgressIndicator fx:id="loadingIndicator" maxHeight="20.0" maxWidth="20.0" visible="false" />
+      </HBox>
+   </center>
 </BorderPane>

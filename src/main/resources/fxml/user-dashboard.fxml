@@ -10,6 +10,8 @@
    <!-- Sidebar a la izquierda -->
    <left>
       <VBox styleClass="sidebar-modern" spacing="12">
+         <!-- Botón Perfil (cuadro morado) -->
+         <Label fx:id="btnProfile" text="🟪" styleClass="sidebar-button" onMouseClicked="#handleSidebarProfile" />
          <Label text="⌂" styleClass="sidebar-button" onMouseClicked="#handleSidebarHome" />
          <Label text="♥" styleClass="sidebar-button" onMouseClicked="#handleSidebarFavorites" />
          <Label text="✨" styleClass="sidebar-button" onMouseClicked="#handleSidebarDiscover" />
@@ -36,17 +38,18 @@
          <padding><Insets bottom="16" left="16" right="16" top="16" /></padding>
          <!-- Buscador -->
          <HBox spacing="10">
-            <TextField fx:id="searchField" promptText="Buscar por título, artista o género..." HBox.hgrow="ALWAYS" />
+            <TextField fx:id="searchField" styleClass="search-bar" promptText="Buscar por título, artista o género..." HBox.hgrow="ALWAYS" />
             <Button fx:id="searchButton" onAction="#handleSearch" text="Buscar" styleClass="primary-button" />
             <Button fx:id="generateDiscoveryButton" onAction="#handleGenerateDiscovery" text="Descubrimiento" styleClass="secondary-button" />
          </HBox>
 
-         <!-- Contenido alternable: Catálogo y Favoritos -->
+         <!-- Contenido alternable: Catálogo, Favoritos y Perfil -->
          <StackPane VBox.vgrow="ALWAYS">
             <VBox fx:id="catalogPane" spacing="10" StackPane.alignment="CENTER">
                <Label styleClass="section-title" text="Catálogo Musical" />
                <TableView fx:id="songsTable" VBox.vgrow="ALWAYS">
                   <columns>
+                     <TableColumn fx:id="coverColumn" prefWidth="60.0" text="" />
                      <TableColumn fx:id="titleColumn" prefWidth="250.0" text="Título" />
                      <TableColumn fx:id="artistColumn" prefWidth="200.0" text="Artista" />
                      <TableColumn fx:id="genreColumn" prefWidth="150.0" text="Género" />
@@ -62,11 +65,42 @@
                <Label styleClass="section-title" text="Mis Favoritos" />
                <TableView fx:id="favoritesTable" VBox.vgrow="ALWAYS">
                   <columns>
+                     <TableColumn fx:id="favCoverColumn" prefWidth="60.0" text="" />
                      <TableColumn fx:id="favTitleColumn" prefWidth="250.0" text="Título" />
                      <TableColumn fx:id="favArtistColumn" prefWidth="200.0" text="Artista" />
                      <TableColumn fx:id="favGenreColumn" prefWidth="150.0" text="Género" />
                   </columns>
                </TableView>
+            </VBox>
+
+            <!-- Vista Perfil -->
+            <VBox fx:id="profilePane" spacing="12" visible="false" managed="false">
+               <Label styleClass="section-title" text="Mi Perfil" />
+               <GridPane hgap="12" vgap="8">
+                  <columnConstraints>
+                     <ColumnConstraints percentWidth="20" />
+                     <ColumnConstraints percentWidth="80" />
+                  </columnConstraints>
+                  <children>
+                     <Label text="Nombre:" styleClass="field-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                     <Label fx:id="profileName" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                     <Label text="Usuario:" styleClass="field-label" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                     <Label fx:id="profileUsername" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                     <Label text="Correo:" styleClass="field-label" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                     <Label fx:id="profileEmail" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                     <Label text="Siguiendo:" styleClass="field-label" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                     <Label fx:id="profileFollowing" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                     <Label text="Seguidores:" styleClass="field-label" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                     <Label fx:id="profileFollowers" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+                  </children>
+               </GridPane>
+               <Separator />
+               <Label styleClass="section-title" text="Mi Biblioteca (Álbumes)" />
+               <ListView fx:id="albumsList" prefHeight="200" />
             </VBox>
          </StackPane>
       </VBox>
@@ -80,21 +114,17 @@
             <Label fx:id="playerTitle" styleClass="player-title" text="—" />
             <Label fx:id="playerArtist" styleClass="player-artist" text="—" />
          </VBox>
-
          <Region HBox.hgrow="ALWAYS" />
-
          <HBox spacing="8" styleClass="player-controls" alignment="CENTER">
             <Button fx:id="btnPrev" text="◀" onAction="#handlePrev" />
             <Button fx:id="btnPlayPause" text="⏯" onAction="#handlePlayPause" />
             <Button fx:id="btnNext" text="▶" onAction="#handleNext" />
          </HBox>
-
          <HBox spacing="8" alignment="CENTER">
             <Label fx:id="playerCurrent" styleClass="player-time" text="0:00" />
             <Slider fx:id="playerSeek" prefWidth="300" />
             <Label fx:id="playerTotal" styleClass="player-time" text="0:00" />
          </HBox>
-
          <HBox spacing="8" alignment="CENTER_RIGHT">
             <Label text="🔊" />
             <Slider fx:id="playerVolume" prefWidth="120" />

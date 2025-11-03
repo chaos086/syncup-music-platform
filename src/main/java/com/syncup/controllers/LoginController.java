@@ -25,8 +25,6 @@ public class LoginController implements Initializable {
     @FXML private PasswordField passwordField;
     @FXML private Button loginButton;
     @FXML private Button registerButton;
-    @FXML private Button demoUserButton;
-    @FXML private Button adminUserButton;
     @FXML private Label errorLabel;
 
     private DataManager dataManager;
@@ -50,9 +48,6 @@ public class LoginController implements Initializable {
     @FXML private void handleRegister(ActionEvent e) {
         RegisterDialogController.showRegisterDialog(dataManager);
     }
-
-    @FXML private void handleDemoLogin() { usernameField.setText("demo_user"); passwordField.setText("demo123"); handleLogin(); }
-    @FXML private void handleAdminLogin() { usernameField.setText("admin"); passwordField.setText("admin123"); handleLogin(); }
 
     private void navigateToMainApp(Usuario usuario) {
         try {

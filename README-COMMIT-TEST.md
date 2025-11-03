@@ -6,6 +6,10 @@ Estoy probando el flujo de `git pull` y `git push` en mi entorno local, y aprove
 
 Pensando en el futuro, tanto para mí como creador, como para los futuros programadores que pueden llegar a usar este repositorio como base o guía para su proyecto, busco generar algo más inclusivo tanto para los de habla inglesa como para los de habla hispana. Espero con esto pueda ser un poco más entendible, aunque es algo que me hubiera gustado implementar antes, se me ocurrió un poco tarde. Aun así, el código intenta estar de lo mejor comentado posible, tanto en el README.md principal, estructura de carpetas, y sobre todo en las propias líneas de código. Espero todo esto sea útil para un mejor entendimiento y aprendizaje de este mundo.
 
+Espero tengan un buen viaje y un buen entendimiento de todo el codigo que acá se encuentra escrito. 
+
+Dios los bendiga.
+
 ## Formato de Commits que Adoptaré
 
 A partir de ahora, escribiré los mensajes de commit en formato bilingüe:

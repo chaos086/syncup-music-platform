@@ -45,7 +45,7 @@ public class UserDashboardController implements Initializable {
     @FXML private ImageView playerCover; @FXML private Label playerTitle; @FXML private Label playerArtist; @FXML private Label playerCurrent; @FXML private Label playerTotal; @FXML private Slider playerSeek; @FXML private Slider playerVolume; @FXML private Button btnPrev; @FXML private Button btnPlayPause; @FXML private Button btnNext;
 
     // Sidebar buttons
-    @FXML private Button sidebarHome; @FXML private Button sidebarFavorites; @FXML private Button sidebarDiscover; @FXML private Button sidebarSearch; @FXML private Button sidebarProfile;
+    @FXML private Button sidebarFavorites;
 
     // Perfil
     @FXML private Label profileName; @FXML private Label profileUsername; @FXML private Label profileEmail; @FXML private Label profileFollowing; @FXML private Label profileFollowers; @FXML private ListView<String> albumsList;
@@ -57,7 +57,7 @@ public class UserDashboardController implements Initializable {
 
     private void setupFavoriteButton(){
         if(addToFavoritesButton != null){
-            // Restaurar al formato original: texto + emoji
+            // Botón bajo la tabla: texto + emoji (como ya quedó perfecto)
             addToFavoritesButton.setText("♥ Agregar a Favoritos");
             addToFavoritesButton.setGraphic(null);
             addToFavoritesButton.getStyleClass().removeAll("favorite-icon");
@@ -68,15 +68,26 @@ public class UserDashboardController implements Initializable {
     private void setupSidebarIcons(){
         // Botón de favoritos de la sidebar con imagen remota que ocupa todo el espacio
         if(sidebarFavorites != null){
-            Image favIcon = new Image("https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg", 40, 40, false, true, true);
-            ImageView favIconView = new ImageView(favIcon);
-            favIconView.setFitWidth(40);
-            favIconView.setFitHeight(40);
-            favIconView.setPreserveRatio(false); // Llenar todo el espacio
-            sidebarFavorites.setGraphic(favIconView);
-            sidebarFavorites.setText("");
-            sidebarFavorites.getStyleClass().add("sidebar-heart-icon");
-            sidebarFavorites.setTooltip(new Tooltip("Favoritos"));
+            try {
+                // Cargar imagen remota del corazón
+                Image favIcon = new Image("https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg", 40, 40, false, true, true);
+                ImageView favIconView = new ImageView(favIcon);
+                favIconView.setFitWidth(40);
+                favIconView.setFitHeight(40);
+                favIconView.setPreserveRatio(false); // Llenar todo el espacio del botón
+                sidebarFavorites.setGraphic(favIconView);
+                sidebarFavorites.setText(""); // Sin texto
+                sidebarFavorites.getStyleClass().add("sidebar-heart-icon");
+                sidebarFavorites.setTooltip(new Tooltip("Favoritos"));
+                System.out.println("Remote heart icon loaded successfully for sidebar favorites button");
+            } catch (Exception e) {
+                System.err.println("Error loading remote heart icon, using fallback: " + e.getMessage());
+                // Fallback: usar emoji si falla la carga
+                sidebarFavorites.setText("♥");
+                sidebarFavorites.setGraphic(null);
+            }
+        } else {
+            System.err.println("sidebarFavorites button not found - check fx:id in FXML");
         }
     }
 

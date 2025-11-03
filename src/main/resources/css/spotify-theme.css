@@ -65,3 +65,18 @@
     -fx-font-size: 32px;
     -fx-effect: dropshadow(gaussian, rgba(29, 185, 84, 0.3), 5, 0, 0, 0);
 }
+
+/* === BOTÓN FAVORITOS === */
+.favorite-icon {
+    -fx-background-color: #1A1A1A;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px;
+    -fx-cursor: hand;
+}
+.favorite-icon:hover {
+    -fx-background-color: #232323;
+    -fx-effect: dropshadow(gaussian, rgba(29, 185, 84, 0.4), 4, 0, 0, 0);
+}
+.favorite-icon:pressed {
+    -fx-background-color: #2A2A2A;
+}

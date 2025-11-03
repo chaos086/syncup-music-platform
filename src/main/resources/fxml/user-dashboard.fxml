@@ -84,5 +84,5 @@
          <Region HBox.hgrow="ALWAYS" />
          <ProgressIndicator fx:id="loadingIndicator" maxHeight="20.0" maxWidth="20.0" visible="false" />
       </HBox>
-   </center>
+   </bottom>
 </BorderPane>

@@ -70,7 +70,7 @@ public class UserDashboardController implements Initializable {
         if(sidebarFavorites != null){
             try {
                 // Cargar imagen remota del corazón
-                Image favIcon = new Image("https://www.clker.com/cliparts/S/Z/r/Q/V/3/green-heart-icon-md.png", 40, 40, false, true, true);
+                Image favIcon = new Image("https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg", 40, 40, false, true, true);
                 ImageView favIconView = new ImageView(favIcon);
                 favIconView.setFitWidth(40);
                 favIconView.setFitHeight(40);

@@ -25,8 +25,8 @@ public class DataManager {
 
     private static final String ADMIN_USERNAME = "admin";
     private static final String ADMIN_PASSWORD = "admin123";
-    private static final String DEMO_USERNAME = "demo_user";
-    private static final String DEMO_PASSWORD = "demo123";
+    private static final String DEMO_USERNAME = "demo";
+    private static final String DEMO_PASSWORD = "demo";
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
@@ -40,32 +40,32 @@ public class DataManager {
 
     private void loadSampleSongs(){ if(!cancionesById.isEmpty()) return; // base existente
         addSong("Bohemian Rhapsody","Queen","A Night at the Opera","Rock",1975,355,
-                "https://i.scdn.co/image/ab67616d0000b2739f54b2b6e9d9f0d1cd0cbd2e",
+                "https://www.thisdayinmusic.com/wp-content/uploads/2018/07/Bohemian-Rhapsody.jpg",
                 "EMI Records · Álbum: A Night at the Opera (1975) · Prod. Roy Thomas Baker");
         addSong("Imagine","John Lennon","Imagine","Rock",1971,183,
-                "https://i.scdn.co/image/ab67616d0000b273b349b1b5bff8d1e1c7aa2d2c",
+                "https://i1.sndcdn.com/artworks-000081989828-qzlmpu-t1080x1080.jpg",
                 "Apple Records · Álbum: Imagine (1971) · Prod. Phil Spector, John & Yoko");
         addSong("Billie Jean","Michael Jackson","Thriller","Pop",1983,294,
-                "https://i.scdn.co/image/ab67616d0000b2732bf88e9b1e5d1d4c9f0d0d0a",
+                "https://cdn-p.smehost.net/sites/28d35d54a3c64e2b851790a18a1c4c18/wp-content/uploads/2024/03/240305-mj-billiejean-single.jpg",
                 "Epic Records · Álbum: Thriller (1982) · Prod. Quincy Jones");
         // Nuevos géneros solicitados
         addSong("Tusa","KAROL G","Ocean","Reggaeton",2019,200,
-                "https://i.scdn.co/image/ab67616d0000b273d5b1e2f6a2c5f6f9c1e2e2e2",
+                "https://images.genius.com/1ea0a7ef7c962647a6b1bbdcbaef8e9b.500x500x1.jpg",
                 "Universal Music Latin · Álbum: Ocean (2019) · Prod. Ovy on the Drums");
         addSong("Enter Sandman","Metallica","Metallica","Rock",1991,331,
-                "https://i.scdn.co/image/ab67616d0000b2734d83b7d5a2b3a6d8f9c0a0a0",
+                "https://i1.sndcdn.com/artworks-000258189284-6xuusb-t500x500.jpg",
                 "Elektra Records · Álbum: Metallica (The Black Album) (1991) · Prod. Bob Rock");
         addSong("As It Was","Harry Styles","Harry's House","Pop",2022,167,
-                "https://i.scdn.co/image/ab67616d0000b2731b9b6d6f4e960f3a2a1c1c1c",
+                "https://www.nme.com/wp-content/uploads/2022/03/Harry-Styles-shares-first-single-from-new-album-As-It-Was.jpg",
                 "Columbia Records · Álbum: Harry's House (2022) · Prod. Kid Harpoon, Tyler Johnson");
         addSong("Pink Venom","BLACKPINK","Born Pink","PopCoreano",2022,189,
-                "https://i.scdn.co/image/ab67616d0000b273c1c3a9d7c6b9a8f7e6d5c4c3",
+                "https://cdn.gingergeneration.it/uploads/2022/08/BLACKPINK-Pink-Venom-Video-ufficiale-testo-traduzione.jpg",
                 "YG Entertainment · Álbum: Born Pink (2022) · Prod. Teddy Park");
         addSong("Me Embriagué","Grupo Niche","Historia Musical","Musica para tomar",1995,210,
-                "https://i.scdn.co/image/ab67616d0000b273aa11bb22cc33dd44ee55ff66",
+                "https://i.discogs.com/Vf6nFkIYegc07_Ow6j5NtglmPGFdlxUddZk3htgfV-s/rs:fit/g:sm/q:40/h:300/w:300/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM5Nzcx/NDMtMTQ3NjY0MTE3/Ny03MjQwLmpwZWc.jpeg",
                 "Discos Fuentes · Compilado: Historia Musical (1995) · Prod. Jairo Varela");
-        addSong("Smooth Criminal","Michael Jackson","Bad","musica de michael jackson",1988,257,
-                "https://i.scdn.co/image/ab67616d0000b273e7f34a95c2a1a9c6d7e8f9f0",
+        addSong("Smooth Criminal","Michael Jackson","Bad","Pop",1988,257,
+                "https://i1.sndcdn.com/artworks-000182188852-girqhx-t500x500.jpg",
                 "Epic Records · Álbum: Bad (1987) · Prod. Quincy Jones");
     }
 

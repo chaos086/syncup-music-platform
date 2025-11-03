@@ -13,7 +13,6 @@ import javafx.stage.Stage;
 
 import com.syncup.data.DataManager;
 import com.syncup.models.Usuario;
-import com.syncup.models.Admin;
 import com.syncup.utils.StyleManager;
 
 import java.io.IOException;
@@ -48,7 +47,6 @@ public class LoginController implements Initializable {
         else { showError("Usuario o contraseña incorrectos"); }
     }
 
-    // Registro: crea usuario y permanece en pantalla de login
     @FXML private void handleRegister(ActionEvent e) {
         RegisterDialogController.showRegisterDialog(dataManager);
     }
@@ -61,27 +59,52 @@ public class LoginController implements Initializable {
             String fxml = usuario.isEsAdmin() ? "/fxml/admin-dashboard.fxml" : "/fxml/user-dashboard.fxml";
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent root;
-            try { root = loader.load(); }
-            catch (IOException ex) { root = createFallback(usuario); }
-            Object controller = loader.getController();
-            if (controller instanceof UserDashboardController && !usuario.isEsAdmin()) {
-                ((UserDashboardController) controller).setCurrentUser(usuario);
-            } else if (controller instanceof AdminDashboardController && usuario.isEsAdmin()) {
-                ((AdminDashboardController) controller).setCurrentAdmin((Admin) usuario);
+            try { 
+                root = loader.load(); 
+                Object controller = loader.getController();
+                // CORREGIDO: No hacer cast a Admin - pasar Usuario directamente
+                if (controller instanceof UserDashboardController && !usuario.isEsAdmin()) {
+                    ((UserDashboardController) controller).setCurrentUser(usuario);
+                } else if (controller instanceof AdminDashboardController && usuario.isEsAdmin()) {
+                    ((AdminDashboardController) controller).setCurrentUser(usuario); // Sin cast
+                }
             }
+            catch (IOException ex) { 
+                System.err.println("FXML no encontrado: " + fxml + " - usando fallback");
+                root = createFallback(usuario); 
+            }
+            
             Scene scene = new Scene(root, 1200, 800);
             StyleManager.applySpotifyTheme(scene);
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
-            stage.setTitle(usuario.isEsAdmin()?"SyncUp - Admin":"SyncUp");
+            stage.setTitle(usuario.isEsAdmin()?"SyncUp - Admin":"SyncUp - Usuario");
             stage.centerOnScreen();
-        } catch (Exception e1) { showError("Error cargando UI: "+e1.getMessage()); }
+        } catch (Exception e1) { 
+            System.err.println("Error completo: " + e1.toString());
+            showError("Error cargando UI: "+e1.getMessage()); 
+        }
     }
 
     private Parent createFallback(Usuario usuario) {
-        VBox box = new VBox();
-        Label l = new Label("Bienvenido " + usuario.getUsername());
-        box.getChildren().add(l);
+        VBox box = new VBox(10);
+        box.setStyle("-fx-padding: 20; -fx-alignment: center;");
+        Label titulo = new Label("Bienvenido " + usuario.getUsername());
+        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        Label info = new Label(usuario.isEsAdmin() ? "Panel de Administrador (Fallback)" : "Panel de Usuario (Fallback)");
+        Button logout = new Button("Cerrar Sesión");
+        logout.setOnAction(e -> {
+            try {
+                FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+                Parent loginRoot = loginLoader.load();
+                Scene loginScene = new Scene(loginRoot, 1200, 800);
+                StyleManager.applySpotifyTheme(loginScene);
+                Stage stage = (Stage) ((Button)e.getSource()).getScene().getWindow();
+                stage.setScene(loginScene);
+                stage.setTitle("SyncUp - Login");
+            } catch (Exception ex) { System.err.println("Error volviendo a login: " + ex); }
+        });
+        box.getChildren().addAll(titulo, info, logout);
         return box;
     }
 

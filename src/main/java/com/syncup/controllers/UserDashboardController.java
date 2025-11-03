@@ -105,15 +105,16 @@ public class UserDashboardController implements Initializable {
     }
 
     private void setupSidebarIcons(){
-        // Favoritos (rojo anterior) – seguir usando imagen remota y cubrir 100%
-        applyFullImage(sidebarFavorites, "https://cloudfront-us-east-1.images.arcpublishing.com/copesa/LAM3N6F7SBA7VICGO5FORGEUQA.jpg");
+        // Favoritos - Corazón blanco - Fondo negro
+        applyFullImage(sidebarFavorites, "https://us.123rf.com/450wm/fokaspokas/fokaspokas1804/fokaspokas180400062/98514386-simple-heart-icon-white-icon-on-black-background-inversion-vector-illustration.jpg");
         if(sidebarFavorites!=null) sidebarFavorites.setTooltip(new Tooltip("Favoritos"));
 
-        // Home e Search con corazón verde
-        String green = "https://www.clker.com/cliparts/S/Z/r/Q/V/3/green-heart-icon-md.png";
-        applyFullImage(sidebarHome, green);
+        // Inicio - Casa verde - Fondo negro
+        applyFullImage(sidebarHome, "https://static.vecteezy.com/system/resources/previews/008/527/647/non_2x/green-neon-house-icon-with-door-roof-and-chimney-on-a-black-background-illustration-vector.jpg");
         if(sidebarHome!=null) sidebarHome.setTooltip(new Tooltip("Inicio"));
-        applyFullImage(sidebarSearch, green);
+
+        // Buscar - Lupa blanca - Fondo negro
+        applyFullImage(sidebarSearch, "https://i.pinimg.com/736x/14/ca/0a/14ca0a07ac0efe0436a9eaf247b554a2.jpg");
         if(sidebarSearch!=null) sidebarSearch.setTooltip(new Tooltip("Buscar"));
     }
 

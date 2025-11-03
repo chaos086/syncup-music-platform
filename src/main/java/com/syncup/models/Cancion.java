@@ -19,7 +19,8 @@ public class Cancion {
     private List<String> artistasColaboradores;
     private String rutaArchivo;
     private String urlImagenAlbum;
-    private String coverUrl; // NUEVO: url de carátula
+    private String coverUrl; // url de carátula
+    private String descripcion; // NUEVO: créditos / disquera / álbum
     private double calificacionPromedio;
     private int numeroCalificaciones;
     private boolean disponible;
@@ -28,7 +29,7 @@ public class Cancion {
     public Cancion(String id, String titulo, String artista, String album, String genero, int anio, int duracionSegundos) {
         this.id = id; this.titulo = titulo; this.artista = artista; this.album = album; this.genero = genero; this.anio = anio; this.duracionSegundos = duracionSegundos;
         this.fechaAgregado = LocalDate.now(); this.reproducciones = 0; this.numeroFavoritos = 0; this.artistasColaboradores = new ArrayList<>();
-        this.rutaArchivo = ""; this.urlImagenAlbum = ""; this.coverUrl = ""; this.calificacionPromedio = 0.0; this.numeroCalificaciones = 0; this.disponible = true; this.contenidoExplicito = false;
+        this.rutaArchivo = ""; this.urlImagenAlbum = ""; this.coverUrl = ""; this.descripcion = ""; this.calificacionPromedio = 0.0; this.numeroCalificaciones = 0; this.disponible = true; this.contenidoExplicito = false;
     }
 
     public Cancion(String titulo, String artista, String genero, int anio) { this(generateId(titulo, artista), titulo, artista, "", genero, anio, 0); }
@@ -57,50 +58,29 @@ public class Cancion {
 
     public List<String> getTodosLosArtistas() { List<String> t = new ArrayList<>(); t.add(artista); t.addAll(artistasColaboradores); return t; }
 
-    public boolean coincideConBusqueda(String termino) {
-        if (termino == null || termino.trim().isEmpty()) return true;
-        String s = termino.toLowerCase();
-        return titulo.toLowerCase().contains(s) || artista.toLowerCase().contains(s) || album.toLowerCase().contains(s) || genero.toLowerCase().contains(s) || artistasColaboradores.stream().anyMatch(a -> a.toLowerCase().contains(s));
-    }
+    public boolean coincideConBusqueda(String termino) { if (termino == null || termino.trim().isEmpty()) return true; String s = termino.toLowerCase(); return titulo.toLowerCase().contains(s) || artista.toLowerCase().contains(s) || album.toLowerCase().contains(s) || genero.toLowerCase().contains(s) || artistasColaboradores.stream().anyMatch(a -> a.toLowerCase().contains(s)); }
 
     public double calcularPuntajePopularidad() { return (reproducciones * 1.0) + (numeroFavoritos * 2.0) + (calificacionPromedio * 100.0); }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
-    public String getArtista() { return artista; }
-    public void setArtista(String artista) { this.artista = artista; }
-    public String getAlbum() { return album; }
-    public void setAlbum(String album) { this.album = album; }
-    public String getGenero() { return genero; }
-    public void setGenero(String genero) { this.genero = genero; }
-    public int getAnio() { return anio; }
-    public void setAnio(int anio) { this.anio = anio; }
-    public int getDuracionSegundos() { return duracionSegundos; }
-    public void setDuracionSegundos(int duracionSegundos) { this.duracionSegundos = duracionSegundos; }
-    public LocalDate getFechaAgregado() { return fechaAgregado; }
-    public void setFechaAgregado(LocalDate fechaAgregado) { this.fechaAgregado = fechaAgregado; }
-    public long getReproducciones() { return reproducciones; }
-    public void setReproducciones(long reproducciones) { this.reproducciones = reproducciones; }
-    public long getNumeroFavoritos() { return numeroFavoritos; }
-    public void setNumeroFavoritos(long numeroFavoritos) { this.numeroFavoritos = numeroFavoritos; }
-    public List<String> getArtistasColaboradores() { return new ArrayList<>(artistasColaboradores); }
-    public void setArtistasColaboradores(List<String> artistasColaboradores) { this.artistasColaboradores = new ArrayList<>(artistasColaboradores); }
-    public String getRutaArchivo() { return rutaArchivo; }
-    public void setRutaArchivo(String rutaArchivo) { this.rutaArchivo = rutaArchivo; }
-    public String getUrlImagenAlbum() { return urlImagenAlbum; }
-    public void setUrlImagenAlbum(String urlImagenAlbum) { this.urlImagenAlbum = urlImagenAlbum; }
-    public String getCoverUrl() { return coverUrl; }
-    public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
-    public double getCalificacionPromedio() { return calificacionPromedio; }
-    public void setCalificacionPromedio(double calificacionPromedio) { this.calificacionPromedio = calificacionPromedio; }
-    public int getNumeroCalificaciones() { return numeroCalificaciones; }
-    public void setNumeroCalificaciones(int numeroCalificaciones) { this.numeroCalificaciones = numeroCalificaciones; }
-    public boolean isDisponible() { return disponible; }
-    public void setDisponible(boolean disponible) { this.disponible = disponible; }
-    public boolean isContenidoExplicito() { return contenidoExplicito; }
-    public void setContenidoExplicito(boolean contenidoExplicito) { this.contenidoExplicito = contenidoExplicito; }
+    public String getId() { return id; } public void setId(String id) { this.id = id; }
+    public String getTitulo() { return titulo; } public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getArtista() { return artista; } public void setArtista(String artista) { this.artista = artista; }
+    public String getAlbum() { return album; } public void setAlbum(String album) { this.album = album; }
+    public String getGenero() { return genero; } public void setGenero(String genero) { this.genero = genero; }
+    public int getAnio() { return anio; } public void setAnio(int anio) { this.anio = anio; }
+    public int getDuracionSegundos() { return duracionSegundos; } public void setDuracionSegundos(int duracionSegundos) { this.duracionSegundos = duracionSegundos; }
+    public LocalDate getFechaAgregado() { return fechaAgregado; } public void setFechaAgregado(LocalDate fechaAgregado) { this.fechaAgregado = fechaAgregado; }
+    public long getReproducciones() { return reproducciones; } public void setReproducciones(long reproducciones) { this.reproducciones = reproducciones; }
+    public long getNumeroFavoritos() { return numeroFavoritos; } public void setNumeroFavoritos(long numeroFavoritos) { this.numeroFavoritos = numeroFavoritos; }
+    public List<String> getArtistasColaboradores() { return new ArrayList<>(artistasColaboradores); } public void setArtistasColaboradores(List<String> artistasColaboradores) { this.artistasColaboradores = new ArrayList<>(artistasColaboradores); }
+    public String getRutaArchivo() { return rutaArchivo; } public void setRutaArchivo(String rutaArchivo) { this.rutaArchivo = rutaArchivo; }
+    public String getUrlImagenAlbum() { return urlImagenAlbum; } public void setUrlImagenAlbum(String urlImagenAlbum) { this.urlImagenAlbum = urlImagenAlbum; }
+    public String getCoverUrl() { return coverUrl; } public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
+    public String getDescripcion() { return descripcion; } public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public double getCalificacionPromedio() { return calificacionPromedio; } public void setCalificacionPromedio(double calificacionPromedio) { this.calificacionPromedio = calificacionPromedio; }
+    public int getNumeroCalificaciones() { return numeroCalificaciones; } public void setNumeroCalificaciones(int numeroCalificaciones) { this.numeroCalificaciones = numeroCalificaciones; }
+    public boolean isDisponible() { return disponible; } public void setDisponible(boolean disponible) { this.disponible = disponible; }
+    public boolean isContenidoExplicito() { return contenidoExplicito; } public void setContenidoExplicito(boolean contenidoExplicito) { this.contenidoExplicito = contenidoExplicito; }
 
     @Override public boolean equals(Object o) { if (this == o) return true; if (o == null || getClass() != o.getClass()) return false; Cancion cancion = (Cancion) o; return Objects.equals(id, cancion.id); }
     @Override public int hashCode() { return Objects.hash(id); }

@@ -53,22 +53,23 @@ public class UserDashboardController implements Initializable {
     @Override public void initialize(URL location, ResourceBundle resources){ dataManager=DataManager.getInstance(); recommendationEngine=new RecommendationEngine(); if(loadingIndicator!=null) loadingIndicator.setVisible(false); setupTables(); setupPlayer(); }
 
     private void setupTables(){
-        if(titleColumn!=null) titleColumn.setCellValueFactory(new PropertyValueFactory<>("titulo"));
-        if(artistColumn!=null) artistColumn.setCellValueFactory(new PropertyValueFactory<>("artista"));
-        if(genreColumn!=null) genreColumn.setCellValueFactory(new PropertyValueFactory<>("genero"));
-        if(yearColumn!=null) yearColumn.setCellValueFactory(new PropertyValueFactory<>("anio"));
-        if(descColumn!=null) descColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
-        if(favTitleColumn!=null) favTitleColumn.setCellValueFactory(new PropertyValueFactory<>("titulo"));
-        if(favArtistColumn!=null) favArtistColumn.setCellValueFactory(new PropertyValueFactory<>("artista"));
-        if(favGenreColumn!=null) favGenreColumn.setCellValueFactory(new PropertyValueFactory<>("genero"));
-        if(favDescColumn!=null) favDescColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
+        if(titleColumn!=null){ titleColumn.setCellValueFactory(new PropertyValueFactory<>("titulo")); titleColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
+        if(artistColumn!=null){ artistColumn.setCellValueFactory(new PropertyValueFactory<>("artista")); artistColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
+        if(genreColumn!=null){ genreColumn.setCellValueFactory(new PropertyValueFactory<>("genero")); genreColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
+        if(yearColumn!=null){ yearColumn.setCellValueFactory(new PropertyValueFactory<>("anio")); yearColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
+        if(descColumn!=null){ descColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion")); descColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
+        if(favTitleColumn!=null){ favTitleColumn.setCellValueFactory(new PropertyValueFactory<>("titulo")); favTitleColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
+        if(favArtistColumn!=null){ favArtistColumn.setCellValueFactory(new PropertyValueFactory<>("artista")); favArtistColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
+        if(favGenreColumn!=null){ favGenreColumn.setCellValueFactory(new PropertyValueFactory<>("genero")); favGenreColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
+        if(favDescColumn!=null){ favDescColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion")); favDescColumn.setStyle("-fx-alignment: CENTER_LEFT;"); }
 
-        Callback<TableColumn<Cancion, Void>, TableCell<Cancion, Void>> factory = col -> new TableCell<>(){
-            private final ImageView iv = new ImageView(); { iv.setFitWidth(40); iv.setFitHeight(40); iv.setPreserveRatio(true); }
-            @Override protected void updateItem(Void item, boolean empty){ super.updateItem(item, empty); if(empty){ setGraphic(null);} else { Cancion c=getTableView().getItems().get(getIndex()); String url=c.getCoverUrl(); Image img=(url!=null&&!url.isEmpty())? new Image(url,40,40,true,true,true) : new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true); iv.setImage(img); HBox box=new HBox(iv); box.setAlignment(Pos.CENTER); setGraphic(box);} }
-        };
+        // Imágenes: llenar el espacio 48x48, centradas
+        Callback<TableColumn<Cancion, Void>, TableCell<Cancion, Void>> factory = TableCells.coverCellFactory();
         if(coverColumn!=null) coverColumn.setCellFactory(factory);
         if(favCoverColumn!=null) favCoverColumn.setCellFactory(factory);
+
+        if (songsTable != null) songsTable.setFixedCellSize(52); // altura consistente
+        if (favoritesTable != null) favoritesTable.setFixedCellSize(52);
 
         if (songsTable != null) songsTable.setOnMouseClicked(e -> { Cancion c = songsTable.getSelectionModel().getSelectedItem(); if (c != null) startPlaybackFrom(c, songsTable.getItems()); });
         if (favoritesTable != null) favoritesTable.setOnMouseClicked(e -> { Cancion c = favoritesTable.getSelectionModel().getSelectedItem(); if (c != null) startPlaybackFrom(c, favoritesTable.getItems()); });
@@ -107,11 +108,10 @@ public class UserDashboardController implements Initializable {
     @FXML private void handlePrev(){ if(currentQueue==null||currentQueue.isEmpty()) return; currentIndex=(currentIndex-1+currentQueue.size())%currentQueue.size(); applySong(currentQueue.get(currentIndex)); }
 
     private void startPlaybackFrom(Cancion c, List<Cancion> queue){ currentQueue=new ArrayList<>(queue); currentIndex=currentQueue.indexOf(c); if(currentIndex<0) currentIndex=0; isPlaying=true; btnPlayPause.setText("⏸"); applySong(currentQueue.get(currentIndex)); }
-    private void applySong(Cancion c){ if(playerTitle!=null) playerTitle.setText(c.getTitulo()); if(playerArtist!=null) playerArtist.setText(c.getArtista()); Image img; String url=c.getCoverUrl(); if(url!=null && !url.isEmpty()) img=new Image(url,40,40,true,true,true); else img=new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true); if(playerCover!=null) playerCover.setImage(img); durationSeconds= c.getDuracionSegundos()>0? c.getDuracionSegundos():210; currentSeconds=0; if(playerSeek!=null){ playerSeek.setMax(durationSeconds); playerSeek.setValue(0);} updatePlayerTime(); startTimer(); }
-    private void startTimer(){ stopTimer(); progressTimer=new Timeline(new KeyFrame(Duration.seconds(1),e->{ if(!isPlaying) return; currentSeconds=Math.min(currentSeconds+1,duracionSeconds()); if(playerSeek!=null) playerSeek.setValue(currentSeconds); updatePlayerTime(); if(currentSeconds>=durationSeconds) handleNext(); })); progressTimer.setCycleCount(Timeline.INDEFINITE); progressTimer.play(); }
+    private void applySong(Cancion c){ if(playerTitle!=null) playerTitle.setText(c.getTitulo()); if(playerArtist!=null) playerArtist.setText(c.getArtista()); Image img; String url=c.getCoverUrl(); if(url!=null && !url.isEmpty()) img=new Image(url,48,48,false,true,true); else img=new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),48,48,false,true); if(playerCover!=null){ playerCover.setFitWidth(48); playerCover.setFitHeight(48); playerCover.setPreserveRatio(false); playerCover.setImage(img);} durationSeconds= c.getDuracionSegundos()>0? c.getDuracionSegundos():210; currentSeconds=0; if(playerSeek!=null){ playerSeek.setMax(durationSeconds); playerSeek.setValue(0);} updatePlayerTime(); startTimer(); }
+    private void startTimer(){ stopTimer(); progressTimer=new Timeline(new KeyFrame(Duration.seconds(1),e->{ if(!isPlaying) return; currentSeconds=Math.min(currentSeconds+1,durationSeconds); if(playerSeek!=null) playerSeek.setValue(currentSeconds); updatePlayerTime(); if(currentSeconds>=durationSeconds) handleNext(); })); progressTimer.setCycleCount(Timeline.INDEFINITE); progressTimer.play(); }
     private void stopTimer(){ if(progressTimer!=null){ progressTimer.stop(); progressTimer=null; } }
     private void updatePlayerTime(){ if(playerCurrent!=null) playerCurrent.setText(formatTime(currentSeconds)); if(playerTotal!=null) playerTotal.setText(formatTime(durationSeconds)); }
-    private int duracionSeconds(){ return durationSeconds; }
     private String formatTime(int s){ int m=s/60; int r=s%60; return String.format("%d:%02d",m,r); }
 
     @FXML private void handleLogout(){ try{ FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/login.fxml")); Parent root=loader.load(); Scene scene=new Scene(root,1200,800); StyleManager.applySpotifyTheme(scene); Stage stage=(Stage) logoutButton.getScene().getWindow(); stage.setScene(scene); stage.setTitle("SyncUp - Login"); stage.centerOnScreen(); } catch(Exception ex){ System.err.println("Error volviendo al login: "+ex);} }

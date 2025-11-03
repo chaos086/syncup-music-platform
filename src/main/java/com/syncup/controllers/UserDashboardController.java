@@ -35,11 +35,11 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class UserDashboardController implements Initializable {
-    @FXML private Button logoutButton;
+    @FXML private Button logoutButton; @FXML private Button btnProfileTop;
     @FXML private TextField searchField; @FXML private Button searchButton; @FXML private Button generateDiscoveryButton;
-    @FXML private TableView<Cancion> songsTable; @FXML private TableColumn<Cancion,String> titleColumn; @FXML private TableColumn<Cancion,String> artistColumn; @FXML private TableColumn<Cancion,String> genreColumn; @FXML private TableColumn<Cancion,Integer> yearColumn; @FXML private TableColumn<Cancion,Void> coverColumn;
+    @FXML private TableView<Cancion> songsTable; @FXML private TableColumn<Cancion,String> titleColumn; @FXML private TableColumn<Cancion,String> artistColumn; @FXML private TableColumn<Cancion,String> genreColumn; @FXML private TableColumn<Cancion,Integer> yearColumn; @FXML private TableColumn<Cancion,Void> coverColumn; @FXML private TableColumn<Cancion,String> descColumn;
     @FXML private Button addToFavoritesButton;
-    @FXML private TableView<Cancion> favoritesTable; @FXML private TableColumn<Cancion,Void> favCoverColumn; @FXML private TableColumn<Cancion,String> favTitleColumn; @FXML private TableColumn<Cancion,String> favArtistColumn; @FXML private TableColumn<Cancion,String> favGenreColumn;
+    @FXML private TableView<Cancion> favoritesTable; @FXML private TableColumn<Cancion,Void> favCoverColumn; @FXML private TableColumn<Cancion,String> favTitleColumn; @FXML private TableColumn<Cancion,String> favArtistColumn; @FXML private TableColumn<Cancion,String> favGenreColumn; @FXML private TableColumn<Cancion,String> favDescColumn;
     @FXML private VBox catalogPane; @FXML private VBox favoritesPane; @FXML private VBox profilePane;
     @FXML private Label welcomeLabel; @FXML private Label userStatsLabel; @FXML private Label statusLabel; @FXML private ProgressIndicator loadingIndicator;
     @FXML private ImageView playerCover; @FXML private Label playerTitle; @FXML private Label playerArtist; @FXML private Label playerCurrent; @FXML private Label playerTotal; @FXML private Slider playerSeek; @FXML private Slider playerVolume; @FXML private Button btnPrev; @FXML private Button btnPlayPause; @FXML private Button btnNext;
@@ -57,26 +57,15 @@ public class UserDashboardController implements Initializable {
         if(artistColumn!=null) artistColumn.setCellValueFactory(new PropertyValueFactory<>("artista"));
         if(genreColumn!=null) genreColumn.setCellValueFactory(new PropertyValueFactory<>("genero"));
         if(yearColumn!=null) yearColumn.setCellValueFactory(new PropertyValueFactory<>("anio"));
+        if(descColumn!=null) descColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
         if(favTitleColumn!=null) favTitleColumn.setCellValueFactory(new PropertyValueFactory<>("titulo"));
         if(favArtistColumn!=null) favArtistColumn.setCellValueFactory(new PropertyValueFactory<>("artista"));
         if(favGenreColumn!=null) favGenreColumn.setCellValueFactory(new PropertyValueFactory<>("genero"));
+        if(favDescColumn!=null) favDescColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
 
-        // Cover columns (ImageView 40x40): usa coverUrl si existe
         Callback<TableColumn<Cancion, Void>, TableCell<Cancion, Void>> factory = col -> new TableCell<>(){
-            private final ImageView iv = new ImageView();
-            { iv.setFitWidth(40); iv.setFitHeight(40); iv.setPreserveRatio(true); }
-            @Override protected void updateItem(Void item, boolean empty){
-                super.updateItem(item, empty);
-                if(empty){ setGraphic(null); }
-                else{
-                    Cancion c = getTableView().getItems().get(getIndex());
-                    String url = c.getCoverUrl();
-                    Image img;
-                    if(url!=null && !url.isEmpty()) img = new Image(url,40,40,true,true, true);
-                    else img = new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true);
-                    iv.setImage(img); setGraphic(new HBox(iv)); ((HBox)getGraphic()).setAlignment(Pos.CENTER);
-                }
-            }
+            private final ImageView iv = new ImageView(); { iv.setFitWidth(40); iv.setFitHeight(40); iv.setPreserveRatio(true); }
+            @Override protected void updateItem(Void item, boolean empty){ super.updateItem(item, empty); if(empty){ setGraphic(null);} else { Cancion c=getTableView().getItems().get(getIndex()); String url=c.getCoverUrl(); Image img=(url!=null&&!url.isEmpty())? new Image(url,40,40,true,true,true) : new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true); iv.setImage(img); HBox box=new HBox(iv); box.setAlignment(Pos.CENTER); setGraphic(box);} }
         };
         if(coverColumn!=null) coverColumn.setCellFactory(factory);
         if(favCoverColumn!=null) favCoverColumn.setCellFactory(factory);
@@ -119,9 +108,10 @@ public class UserDashboardController implements Initializable {
 
     private void startPlaybackFrom(Cancion c, List<Cancion> queue){ currentQueue=new ArrayList<>(queue); currentIndex=currentQueue.indexOf(c); if(currentIndex<0) currentIndex=0; isPlaying=true; btnPlayPause.setText("⏸"); applySong(currentQueue.get(currentIndex)); }
     private void applySong(Cancion c){ if(playerTitle!=null) playerTitle.setText(c.getTitulo()); if(playerArtist!=null) playerArtist.setText(c.getArtista()); Image img; String url=c.getCoverUrl(); if(url!=null && !url.isEmpty()) img=new Image(url,40,40,true,true,true); else img=new Image(getClass().getResourceAsStream("/images/cover-placeholder.png"),40,40,true,true); if(playerCover!=null) playerCover.setImage(img); durationSeconds= c.getDuracionSegundos()>0? c.getDuracionSegundos():210; currentSeconds=0; if(playerSeek!=null){ playerSeek.setMax(durationSeconds); playerSeek.setValue(0);} updatePlayerTime(); startTimer(); }
-    private void startTimer(){ stopTimer(); progressTimer=new Timeline(new KeyFrame(Duration.seconds(1),e->{ if(!isPlaying) return; currentSeconds=Math.min(currentSeconds+1,durationSeconds); if(playerSeek!=null) playerSeek.setValue(currentSeconds); updatePlayerTime(); if(currentSeconds>=durationSeconds) handleNext(); })); progressTimer.setCycleCount(Timeline.INDEFINITE); progressTimer.play(); }
+    private void startTimer(){ stopTimer(); progressTimer=new Timeline(new KeyFrame(Duration.seconds(1),e->{ if(!isPlaying) return; currentSeconds=Math.min(currentSeconds+1,duracionSeconds()); if(playerSeek!=null) playerSeek.setValue(currentSeconds); updatePlayerTime(); if(currentSeconds>=durationSeconds) handleNext(); })); progressTimer.setCycleCount(Timeline.INDEFINITE); progressTimer.play(); }
     private void stopTimer(){ if(progressTimer!=null){ progressTimer.stop(); progressTimer=null; } }
     private void updatePlayerTime(){ if(playerCurrent!=null) playerCurrent.setText(formatTime(currentSeconds)); if(playerTotal!=null) playerTotal.setText(formatTime(durationSeconds)); }
+    private int duracionSeconds(){ return durationSeconds; }
     private String formatTime(int s){ int m=s/60; int r=s%60; return String.format("%d:%02d",m,r); }
 
     @FXML private void handleLogout(){ try{ FXMLLoader loader=new FXMLLoader(getClass().getResource("/fxml/login.fxml")); Parent root=loader.load(); Scene scene=new Scene(root,1200,800); StyleManager.applySpotifyTheme(scene); Stage stage=(Stage) logoutButton.getScene().getWindow(); stage.setScene(scene); stage.setTitle("SyncUp - Login"); stage.centerOnScreen(); } catch(Exception ex){ System.err.println("Error volviendo al login: "+ex);} }

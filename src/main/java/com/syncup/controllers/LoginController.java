@@ -47,7 +47,7 @@ public class LoginController implements Initializable {
 
         // 1) Intentar autenticar por nuevo repositorio (username o email)
         if (userRepo.authenticate(user, pass)) {
-            navigateToMainApp(new Usuario("temp","" , user, user, true)); // navega sin romper flujo; el dashboard obtiene currentUser desde DataManager si aplica
+            navigateToMainAppSimple();
             return;
         }
         // 2) Compatibilidad: autenticación previa
@@ -57,8 +57,6 @@ public class LoginController implements Initializable {
     }
 
     @FXML private void handleRegister(ActionEvent e) {
-        // Diálogo simple con campos mínimos usando los TextFields existentes si ya están en el FXML,
-        // o puedes mantener el flujo de RegisterDialogController si lo prefieres.
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Crear cuenta");
         DialogPane pane = dialog.getDialogPane();
@@ -85,14 +83,38 @@ public class LoginController implements Initializable {
         });
     }
 
+    private void navigateToMainAppSimple() {
+        try {
+            String fxml = "/fxml/user-dashboard.fxml";
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Parent root = loader.load();
+            Scene scene = new Scene(root, 1200, 800);
+            StyleManager.applySpotifyTheme(scene);
+            Stage stage = (Stage) loginButton.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("SyncUp - Usuario");
+            stage.centerOnScreen();
+        } catch (Exception ex) {
+            System.err.println("Error cargando UI: " + ex);
+            showError("Error cargando UI: " + ex.getMessage());
+        }
+    }
+
     private void navigateToMainApp(Usuario usuario) {
         try {
-            String fxml = "/fxml/user-dashboard.fxml"; // entra al dashboard de usuario
+            String fxml = usuario.isEsAdmin() ? "/fxml/admin-dashboard.fxml" : "/fxml/user-dashboard.fxml";
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent root;
             try { 
                 root = loader.load(); 
-            } catch (IOException ex) { 
+                Object controller = loader.getController();
+                if (controller instanceof UserDashboardController && !usuario.isEsAdmin()) {
+                    ((UserDashboardController) controller).setCurrentUser(usuario);
+                } else if (controller instanceof AdminDashboardController && usuario.isEsAdmin()) {
+                    ((AdminDashboardController) controller).setCurrentUser(usuario);
+                }
+            }
+            catch (IOException ex) { 
                 System.err.println("FXML no encontrado: " + fxml + " - usando fallback");
                 root = createFallback(usuario); 
             }
@@ -100,7 +122,7 @@ public class LoginController implements Initializable {
             StyleManager.applySpotifyTheme(scene);
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
-            stage.setTitle("SyncUp - Usuario");
+            stage.setTitle(usuario.isEsAdmin()?"SyncUp - Admin":"SyncUp - Usuario");
             stage.centerOnScreen();
         } catch (Exception e1) { 
             System.err.println("Error completo: " + e1);
@@ -113,7 +135,7 @@ public class LoginController implements Initializable {
         box.setStyle("-fx-padding: 20; -fx-alignment: center;");
         Label titulo = new Label("Bienvenido " + (usuario.getUsername()!=null?usuario.getUsername():"usuario"));
         titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-        Label info = new Label("Panel de Usuario (Fallback)");
+        Label info = new Label(usuario.isEsAdmin()?"Panel de Administrador (Fallback)":"Panel de Usuario (Fallback)");
         Button logout = new Button("Cerrar Sesión");
         logout.setOnAction(e -> {
             try {

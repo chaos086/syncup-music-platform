@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
     @FXML private ImageView logoImageView;
-    @FXML private TextField usernameField; // login: username o email
+    @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private Button loginButton;
     @FXML private Button registerButton;
@@ -51,7 +51,7 @@ public class LoginController implements Initializable {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Crear cuenta");
         DialogPane pane = dialog.getDialogPane();
-        pane.getStylesheets().add(getClass().getResource("/css/spotify-theme.css").toExternalForm());
+        pane.getStylesheets().add(getClass().getResource("/css/themes/spotify-theme.css").toExternalForm());
         pane.getStyleClass().add("signup-dialog");
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -114,7 +114,6 @@ public class LoginController implements Initializable {
         });
     }
 
-    // FIX: add missing helper used by listeners
     private void toggleError(TextField tf, boolean error){
         if(error){ if(!tf.getStyleClass().contains("input-error")) tf.getStyleClass().add("input-error"); }
         else tf.getStyleClass().remove("input-error");

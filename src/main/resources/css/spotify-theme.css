@@ -80,3 +80,20 @@
 .favorite-icon:pressed {
     -fx-background-color: #2A2A2A;
 }
+
+/* === BOTÓN CORAZÓN SIDEBAR === */
+.sidebar-heart-icon {
+    -fx-background-color: transparent;
+    -fx-background-radius: 12px;
+    -fx-padding: 4px;
+    -fx-cursor: hand;
+    -fx-min-width: 48px;
+    -fx-min-height: 48px;
+}
+.sidebar-heart-icon:hover {
+    -fx-background-color: #232323;
+    -fx-effect: dropshadow(gaussian, rgba(255, 20, 147, 0.6), 6, 0, 0, 0);
+}
+.sidebar-heart-icon:pressed {
+    -fx-background-color: #2A2A2A;
+}

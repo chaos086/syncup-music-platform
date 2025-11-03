@@ -7,6 +7,7 @@ import com.syncup.structures.HashMap;
 import com.syncup.structures.TrieAutocompletado;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DataManager {
@@ -26,6 +27,8 @@ public class DataManager {
     private static final String ADMIN_PASSWORD = "admin123";
     private static final String DEMO_USERNAME = "demo_user";
     private static final String DEMO_PASSWORD = "demo123";
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     public static synchronized DataManager getInstance() { if (instance == null) instance = new DataManager(); return instance; }
 
@@ -74,6 +77,19 @@ public class DataManager {
     public boolean addUsuario(Usuario u){ if(u==null || usuariosByUsername.containsKey(u.getUsername())) return false; usuariosById.put(u.getId(),u); usuariosByUsername.put(u.getUsername(),u); grafoSocial.agregarUsuario(u); return true; }
     public boolean removeUsuario(String id){ Usuario u=usuariosById.get(id); if(u==null) return false; if(ADMIN_USERNAME.equals(u.getUsername())) return false; usuariosById.remove(id); usuariosByUsername.remove(u.getUsername()); return true; }
     public Usuario getUsuarioById(String id){ return usuariosById.get(id);} public Usuario getUsuarioByUsername(String username){ return usuariosByUsername.get(username);} public List<Usuario> getAllUsuarios(){ return new ArrayList<>(usuariosById.values()); }
+
+    public synchronized boolean createUser(String username, String password, String nombre, String email) {
+        if (username == null || username.trim().isEmpty()) return false;
+        if (username.contains(" ")) return false;
+        if (password == null || password.trim().length() < 4) return false;
+        if (usuariosByUsername.containsKey(username)) return false;
+        if (email == null || !EMAIL_PATTERN.matcher(email.trim()).matches()) return false;
+        Usuario u = new Usuario(username.trim(), password.trim());
+        u.setNombreCompleto(nombre == null ? "" : nombre.trim());
+        u.setEmail(email.trim());
+        u.setEsAdmin(false);
+        return addUsuario(u);
+    }
 
     public Usuario authenticateUser(String username,String password){ if(ADMIN_USERNAME.equals(username)&&ADMIN_PASSWORD.equals(password)) return usuariosByUsername.get(ADMIN_USERNAME); Usuario u=usuariosByUsername.get(username); return (u!=null && u.getPassword().equals(password) && u.isActivo())? u : null; }
 

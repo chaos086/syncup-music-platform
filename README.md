@@ -38,8 +38,8 @@ cd syncup-music-platform
 ## 🔐 **CREDENCIALES DE ACCESO**
 
 ### 👤 **Usuario Demo:**
-- **Usuario:** `demo_user`
-- **Contraseña:** `demo123`
+- **Usuario:** `demo`
+- **Contraseña:** `demo`
 - **Funciones:** Perfil completo, favoritos, búsqueda, social
 
 ### 👨‍💼 **Administrador:**

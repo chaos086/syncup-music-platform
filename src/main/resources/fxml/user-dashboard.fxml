@@ -11,7 +11,7 @@
    <left>
       <VBox styleClass="sidebar-modern" spacing="12">
          <Label text="⌂" styleClass="sidebar-button" onMouseClicked="#handleSidebarHome" />
-         <Label text="♥" styleClass="sidebar-button" onMouseClicked="#handleSidebarFavorites" />
+         <Button fx:id="sidebarFavorites" text="" styleClass="sidebar-button" onAction="#handleSidebarFavorites" />
          <Label text="✨" styleClass="sidebar-button" onMouseClicked="#handleSidebarDiscover" />
          <Label text="🔎" styleClass="sidebar-button" onMouseClicked="#handleSidebarSearchFocus" />
       </VBox>
@@ -68,7 +68,6 @@
                <TableView fx:id="favoritesTable" VBox.vgrow="ALWAYS">
                   <columns>
                      <TableColumn fx:id="favCoverColumn" prefWidth="60.0" text="Logo" />
-                     <TableColumn fx:id="favTitleColumn" prefWidth="250.0" text="Título" />
                      <TableColumn fx:id="favArtistColumn" prefWidth="200.0" text="Artista" />
                      <TableColumn fx:id="favGenreColumn" prefWidth="150.0" text="Género" />
                      <TableColumn fx:id="favDescColumn" prefWidth="280.0" text="Descripción" />

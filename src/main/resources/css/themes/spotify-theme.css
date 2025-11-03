@@ -1,5 +1,4 @@
-/* Master theme that imports all partials */
-@import url("../core/variables.css");
+/* Master Spotify Theme - imports all modular components */
 @import url("../core/base.css");
 @import url("../components/buttons.css");
 @import url("../components/forms.css");

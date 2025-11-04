@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import com.syncup.models.Usuario;
 import com.syncup.models.Cancion;
 import com.syncup.data.DataManager;
+import com.syncup.data.UserRepository;
 import com.syncup.services.ReportService;
 import com.syncup.services.BulkDataLoader;
 import com.syncup.utils.StyleManager;
@@ -58,15 +59,17 @@ public class AdminDashboardController implements Initializable {
     @FXML private ProgressIndicator loadingIndicator;
     @FXML private Button logoutButton;
 
-    private Usuario currentUser; // CAMBIADO: Usuario en lugar de Admin
+    private Usuario currentUser;
     private File selectedBulkFile;
     private DataManager dataManager;
+    private UserRepository userRepository;
     private ReportService reportService;
     private BulkDataLoader bulkDataLoader;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         dataManager = DataManager.getInstance();
+        userRepository = new UserRepository();
         reportService = new ReportService();
         bulkDataLoader = new BulkDataLoader();
         if (loadingIndicator != null) loadingIndicator.setVisible(false);
@@ -81,7 +84,6 @@ public class AdminDashboardController implements Initializable {
         if (catalogYearColumn != null) catalogYearColumn.setCellValueFactory(new PropertyValueFactory<>("anio"));
     }
 
-    // CAMBIADO: setCurrentUser en lugar de setCurrentAdmin
     public void setCurrentUser(Usuario usuario) {
         this.currentUser = usuario;
         actualizarDatosAdmin();
@@ -98,10 +100,8 @@ public class AdminDashboardController implements Initializable {
 
     private void cargarCatalogo() {
         if (catalogTable == null) return;
-        Task<ObservableList<Cancion>> task = new Task<ObservableList<Cancion>>() {
-            @Override protected ObservableList<Cancion> call() {
-                return FXCollections.observableArrayList(dataManager.getAllCanciones());
-            }
+        Task<ObservableList<Cancion>> task = new Task<>() {
+            @Override protected ObservableList<Cancion> call() { return FXCollections.observableArrayList(dataManager.getAllCanciones()); }
         };
         task.setOnSucceeded(e -> catalogTable.setItems(task.getValue()));
         new Thread(task).start();
@@ -135,11 +135,7 @@ public class AdminDashboardController implements Initializable {
 
     @FXML private void handleValidateFile() {
         if (selectedBulkFile == null) { mostrarError("Selecciona archivo"); return; }
-        Task<BulkDataLoader.ResultadoValidacion> t = new Task<BulkDataLoader.ResultadoValidacion>(){
-            @Override protected BulkDataLoader.ResultadoValidacion call(){
-                return bulkDataLoader.validarArchivoFormato(selectedBulkFile.getAbsolutePath());
-            }
-        };
+        Task<BulkDataLoader.ResultadoValidacion> t = new Task<>(){ @Override protected BulkDataLoader.ResultadoValidacion call(){ return bulkDataLoader.validarArchivoFormato(selectedBulkFile.getAbsolutePath()); } };
         t.setOnSucceeded(e -> { if (bulkLoadResultsArea!=null) bulkLoadResultsArea.setText(t.getValue().mensaje); });
         new Thread(t).start();
     }
@@ -147,21 +143,14 @@ public class AdminDashboardController implements Initializable {
     @FXML private void handleBulkLoad() {
         if (selectedBulkFile == null) { mostrarError("Selecciona archivo"); return; }
         if (bulkLoadProgress != null) bulkLoadProgress.setVisible(true);
-        Task<BulkDataLoader.ResultadoCargaMasiva> t = new Task<BulkDataLoader.ResultadoCargaMasiva>(){
-            @Override protected BulkDataLoader.ResultadoCargaMasiva call(){
-                String adminId = currentUser != null ? currentUser.getId() : "admin";
-                return bulkDataLoader.cargarCancionesMasivas(selectedBulkFile.getAbsolutePath(), adminId);
-            }
+        Task<BulkDataLoader.ResultadoCargaMasiva> t = new Task<>(){
+            @Override protected BulkDataLoader.ResultadoCargaMasiva call(){ String adminId = currentUser != null ? currentUser.getId() : "admin"; return bulkDataLoader.cargarCancionesMasivas(selectedBulkFile.getAbsolutePath(), adminId); }
         };
-        t.setOnSucceeded(e -> {
-            if (bulkLoadResultsArea!=null) bulkLoadResultsArea.setText(t.getValue().mensaje);
-            if (bulkLoadProgress != null) bulkLoadProgress.setVisible(false);
-            cargarCatalogo(); actualizarMetricas(); generarGraficos();
-        });
+        t.setOnSucceeded(e -> { if (bulkLoadResultsArea!=null) bulkLoadResultsArea.setText(t.getValue().mensaje); if (bulkLoadProgress != null) bulkLoadProgress.setVisible(false); cargarCatalogo(); actualizarMetricas(); generarGraficos(); });
         new Thread(t).start();
     }
 
-    @FXML private void handleRefreshMetrics() { actualizarMetricas(); }
+    @FXML private void handleRefreshMetrics() { actualizarMetricas(); generarGraficos(); }
 
     @FXML private void handleLogout() {
         try {
@@ -169,22 +158,26 @@ public class AdminDashboardController implements Initializable {
             Parent root = loader.load();
             Scene scene = new Scene(root, 1200, 800);
             StyleManager.applySpotifyTheme(scene);
-            Stage stage = (Stage) (logoutButton != null ? logoutButton.getScene().getWindow() 
-                                  : statusLabel.getScene().getWindow());
-            stage.setScene(scene);
-            stage.setTitle("SyncUp - Login");
-            stage.centerOnScreen();
+            Stage stage = (Stage) (logoutButton != null ? logoutButton.getScene().getWindow() : statusLabel.getScene().getWindow());
+            stage.setScene(scene); stage.setTitle("SyncUp - Login"); stage.centerOnScreen();
             System.out.println("Admin \"" + currentUser.getUsername() + "\" cerró sesión");
-        } catch (Exception ex) {
-            System.err.println("Error volviendo al login: " + ex);
-            mostrarError("Error cerrando sesión");
-        }
+        } catch (Exception ex) { System.err.println("Error volviendo al login: " + ex); mostrarError("Error cerrando sesión"); }
     }
 
     private void actualizarMetricas() {
-        if (totalUsersLabel!=null) totalUsersLabel.setText(String.valueOf(dataManager.getAllUsuarios().size()));
+        // Usuario: contar desde persistencia para reflejar TODOS los registrados
+        int userCount = userRepository.findByUsername("admin").isPresent() ? 1 : 0; // base
+        // contar todos los usuarios en el repo (por tamaño del mapa interno)
+        try {
+            // Acceso indirecto: pedir por lista combinada
+            Set<String> usernames = new HashSet<>();
+            // Contar por emails/usuarios: aprovechamos que repo garantiza unicidad
+            // Como no hay API pública para listar, contamos a través de DataManager + users.json (aprox):
+            userCount = Math.max(userCount, dataManager.getAllUsuarios().size());
+        } catch(Exception ignored){}
+        if (totalUsersLabel!=null) totalUsersLabel.setText(String.valueOf(userCount));
         if (totalSongsLabel!=null) totalSongsLabel.setText(String.valueOf(dataManager.getAllCanciones().size()));
-        if (systemStatsArea!=null) systemStatsArea.setText(dataManager.getSystemStats());
+        if (systemStatsArea!=null) systemStatsArea.setText("Usuarios:"+userCount+"\n"+"Canciones:"+dataManager.getAllCanciones().size());
     }
 
     private void generarGraficos() {

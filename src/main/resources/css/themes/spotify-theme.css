@@ -8,3 +8,4 @@
 @import url("../components/dialogs-spacing.css"); /* nuevo spacing para evitar solapes */
 @import url("../components/media-controls.css"); /* nuevo: sliders de progreso/volumen */
 @import url("../components/admin.css"); /* nuevo: estética admin */
+@import url("../components/charts.css"); /* nuevo: estilos específicos de charts */

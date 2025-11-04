@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.syncup.controllers.AdminDashboardController">
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.syncup.controllers.AdminDashboardController" styleClass="admin-dashboard">
    <top>
       <VBox styleClass="dashboard-container">
          <HBox alignment="CENTER_LEFT" spacing="20.0">
@@ -30,12 +30,12 @@
          <Tab text="Metricas">
             <VBox spacing="20.0" styleClass="content-panel">
                <HBox spacing="20.0">
-                  <VBox alignment="CENTER" spacing="5.0" styleClass="metric-card">
+                  <VBox alignment="CENTER" spacing="5.0" styleClass="metric-card panel-dark">
                      <Label styleClass="metric-number" fx:id="totalUsersLabel" text="0" />
                      <Label styleClass="metric-label" text="Usuarios" />
                   </VBox>
                   
-                  <VBox alignment="CENTER" spacing="5.0" styleClass="metric-card">
+                  <VBox alignment="CENTER" spacing="5.0" styleClass="metric-card panel-dark">
                      <Label styleClass="metric-number" fx:id="totalSongsLabel" text="0" />
                      <Label styleClass="metric-label" text="Canciones" />
                   </VBox>
@@ -44,12 +44,12 @@
                </HBox>
                
                <HBox spacing="20.0">
-                  <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                  <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="panel-dark">
                      <Label styleClass="section-title" text="Generos" />
                      <PieChart fx:id="genreDistributionChart" prefHeight="300.0" />
                   </VBox>
                   
-                  <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                  <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="panel-dark">
                      <Label styleClass="section-title" text="Artistas" />
                      <BarChart fx:id="popularArtistsChart" prefHeight="300.0">
                         <xAxis><CategoryAxis /></xAxis>
@@ -58,7 +58,7 @@
                   </VBox>
                </HBox>
                
-               <TextArea fx:id="systemStatsArea" editable="false" prefHeight="150.0" wrapText="true" />
+               <TextArea fx:id="systemStatsArea" editable="false" prefHeight="150.0" wrapText="true" styleClass="panel-dark" />
                
                <padding>
                   <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
@@ -103,7 +103,7 @@
                </HBox>
                
                <Label fx:id="bulkLoadStatusLabel" text="Sin archivo" />
-               <TextArea fx:id="bulkLoadResultsArea" editable="false" prefHeight="300.0" wrapText="true" />
+               <TextArea fx:id="bulkLoadResultsArea" editable="false" prefHeight="300.0" wrapText="true" styleClass="panel-dark" />
                
                <padding>
                   <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />

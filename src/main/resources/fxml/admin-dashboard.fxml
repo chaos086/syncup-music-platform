@@ -51,7 +51,7 @@
                   
                   <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="panel-dark">
                      <Label styleClass="section-title" text="Artistas" />
-                     <BarChart fx:id="popularArtistsChart" prefHeight="300.0">
+                     <BarChart fx:id="popularArtistsChart" prefHeight="300.0" styleClass="chart-dark-framed">
                         <xAxis><CategoryAxis /></xAxis>
                         <yAxis><NumberAxis /></yAxis>
                      </BarChart>

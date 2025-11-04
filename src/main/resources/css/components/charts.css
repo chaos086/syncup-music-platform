@@ -6,4 +6,4 @@
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
 }
-.pie-legend-dark .label { -fx-text-fill: #ffffff; }
+.pie-legend-dark .label { -fx-text-fill: #000000; }

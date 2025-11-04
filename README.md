@@ -1,8 +1,8 @@
-# 🎵 SyncUp - Motor de Recomendaciones Musicales
+# 🎵 Spoty - Motor de Recomendaciones Musicales
 
 **Universidad del Quindío - Estructura de Datos**  
 **Autor:** Alejandro Marín Hernández  
-**Versión:** 1.0.0  
+**Versión:** 1.0.5  
 **Fecha:** Noviembre 2025
 
 ---
@@ -38,8 +38,8 @@ cd syncup-music-platform
 ## 🔐 **CREDENCIALES DE ACCESO**
 
 ### 👤 **Usuario Demo:**
-- **Usuario:** `demo_user`
-- **Contraseña:** `demo123`
+- **Usuario:** `demo`
+- **Contraseña:** `demo`
 - **Funciones:** Perfil completo, favoritos, búsqueda, social
 
 ### 👨‍💼 **Administrador:**

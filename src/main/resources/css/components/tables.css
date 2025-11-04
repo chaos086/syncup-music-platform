@@ -1,9 +1,11 @@
-/* Tables - estética como en la imagen 1 */
+/* Tables - Mejorado con columna 7 en negro y todas las correcciones */
 
 .table-view {
     -fx-background-color: #121212;
     -fx-table-cell-border-color: transparent;
     -fx-border-color: transparent;
+    -fx-control-inner-background: #121212;
+    -fx-selection-bar-non-focused: #1db95433;
 }
 
 /* Headers oscuros */
@@ -20,22 +22,66 @@
     -fx-padding: 8px;
 }
 
-/* Cells */
+/* CORRECCIÓN 3: Todas las celdas de tabla con fondo negro y texto blanco */
 .table-view .table-cell {
-    -fx-background-color: #121212;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #121212 !important; /* Fondo negro para todas las celdas */
+    -fx-text-fill: #ffffff !important; /* Texto blanco para todas las celdas */
     -fx-border-color: transparent;
     -fx-padding: 4px 8px;
     -fx-alignment: CENTER_LEFT;
 }
 
-/* Row hover */
+/* Especialmente para la columna 7 (Descripción) */
+.table-view .table-cell:nth-column(7) {
+    -fx-background-color: #121212 !important;
+    -fx-text-fill: #ffffff !important;
+}
+
+/* Row hover con fondo más claro */
 .table-view .table-row-cell:hover {
-    -fx-background-color: #1a1a1a;
+    -fx-background-color: #1a1a1a !important;
+}
+
+.table-view .table-row-cell:hover .table-cell {
+    -fx-background-color: #1a1a1a !important;
+    -fx-text-fill: #ffffff !important;
 }
 
 /* Row selection - verde translúcida como en imagen 1 */
 .table-view .table-row-cell:selected {
-    -fx-background-color: #1db95433;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #1db95433 !important;
+}
+
+.table-view .table-row-cell:selected .table-cell {
+    -fx-background-color: #1db95433 !important;
+    -fx-text-fill: #ffffff !important;
+}
+
+/* Forzar texto blanco en todas las situaciones */
+.table-view .table-cell .text {
+    -fx-fill: #ffffff !important;
+}
+
+.table-view .table-cell .label {
+    -fx-text-fill: #ffffff !important;
+}
+
+/* Scrollbars de la tabla */
+.table-view .scroll-bar {
+    -fx-background-color: #121212;
+}
+
+.table-view .scroll-bar .thumb {
+    -fx-background-color: #4a4a4a;
+    -fx-background-radius: 4px;
+}
+
+.table-view .scroll-bar .thumb:hover {
+    -fx-background-color: #6a6a6a;
+}
+
+/* Placeholder cuando no hay datos */
+.table-view .placeholder {
+    -fx-background-color: #121212;
+    -fx-text-fill: #b3b3b3;
 }

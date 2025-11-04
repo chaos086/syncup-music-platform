@@ -3,12 +3,13 @@
     -fx-min-width: 420px;
     -fx-pref-width: 420px;
     -fx-max-width: 420px;
-    -fx-min-height: 500px; /* alargar */
-    -fx-pref-height: 520px;
+    -fx-min-height: 450px; /* alargar */
+    -fx-pref-height: 350px;
 }
 
 /* Bajar los botones aún más */
 .signup-dialog .button-bar,
+
 .dialog-pane > .button-bar {
-    -fx-padding: 28px 0 0 0;
+    -fx-padding: 20px 0 0 0;
 }

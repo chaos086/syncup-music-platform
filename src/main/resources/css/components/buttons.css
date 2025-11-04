@@ -68,8 +68,6 @@
     -fx-cursor: hand;
 }
 
-.
-
 .favorite-button.added:hover {
     -fx-background-color: #c81e2f !important;
 }

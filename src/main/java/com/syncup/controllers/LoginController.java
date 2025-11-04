@@ -33,8 +33,24 @@ public class LoginController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         dataManager = DataManager.getInstance();
+        // Asegurar admin con rol persistido al inicio
+        ensureAdminWithRole();
         if (usernameField != null) usernameField.setOnAction(e -> handleLogin());
         if (passwordField != null) passwordField.setOnAction(e -> handleLogin());
+    }
+    
+    /**
+     * Garantiza que el admin tenga el rol de administrador persistido
+     */
+    private void ensureAdminWithRole() {
+        try {
+            // Si admin existe pero no tiene rol, actualizar
+            if (userRepo.findByUsername("admin").isPresent()) {
+                userRepo.updateAdminRole("admin", true);
+            }
+        } catch (Exception e) {
+            System.err.println("Error asegurando rol admin: " + e.getMessage());
+        }
     }
 
     @FXML private void handleLogin() {
@@ -42,22 +58,41 @@ public class LoginController implements Initializable {
         String pass = passwordField.getText();
         if (user.isEmpty() || pass.isEmpty()) { showError("Ingresa usuario y contraseña"); return; }
 
-        // Primero: autenticación contra persistencia
-        if (userRepo.authenticate(user, pass)) {
-            Usuario usuario = userRepo.findByUsernameOrEmail(user).orElse(null);
-            if (usuario == null && "admin".equals(user)) {
-                // Fallback: admin fijo en memoria
-                usuario = dataManager.getUsuarioByUsername("admin");
-                if (usuario != null) usuario.setEsAdmin(true);
-            }
-            if (usuario != null) { hideError(); navigateToMainApp(usuario); return; }
+        // SISTEMA MEJORADO: Verificación unificada con roles
+        Usuario usuario = authenticateUserWithRole(user, pass);
+        if (usuario != null) {
+            hideError();
+            navigateToMainApp(usuario);
+        } else {
+            showError("Usuario o contraseña incorrectos");
         }
-
-        // Segundo: autenticación vía DataManager (incluye admin fijo)
-        Usuario usuario = dataManager.authenticateUser(user, pass);
-        if (usuario != null) { hideError(); navigateToMainApp(usuario); return; }
-
-        showError("Usuario o contraseña incorrectos");
+    }
+    
+    /**
+     * Método unificado de autenticación que resuelve roles correctamente
+     */
+    private Usuario authenticateUserWithRole(String username, String password) {
+        // 1. Verificación de credenciales admin hardcodeadas (prioritario)
+        if (userRepo.isAdminCredentials(username, password)) {
+            // Buscar admin en persistencia o crear/actualizar
+            Optional<Usuario> adminOpt = userRepo.findByUsername("admin");
+            if (adminOpt.isPresent()) {
+                Usuario admin = adminOpt.get();
+                if (!admin.isEsAdmin()) {
+                    admin.setEsAdmin(true);
+                    userRepo.updateAdminRole("admin", true); // persistir rol
+                }
+                return admin;
+            }
+        }
+        
+        // 2. Autenticación normal contra persistencia
+        if (userRepo.authenticate(username, password)) {
+            return userRepo.findByUsernameOrEmail(username).orElse(null);
+        }
+        
+        // 3. Fallback a DataManager (usuarios en memoria)
+        return dataManager.authenticateUser(username, password);
     }
 
     @FXML private void handleRegister(ActionEvent e) {
@@ -118,7 +153,7 @@ public class LoginController implements Initializable {
         dialog.showAndWait().ifPresent(bt -> {
             if (bt == ButtonType.OK) {
                 try {
-                    userRepo.create(name.getText(), user.getText(), email.getText(), pass.getText());
+                    userRepo.create(name.getText(), user.getText(), email.getText(), pass.getText(), false); // usuarios normales
                     showError("Cuenta creada correctamente. Ya puedes iniciar sesión.");
                 } catch (IllegalStateException dup) { showError(dup.getMessage()); }
                 catch (IllegalArgumentException bad) { showError(bad.getMessage()); }
@@ -136,7 +171,36 @@ public class LoginController implements Initializable {
 
     private boolean isStrong(String p){ if(p==null || p.length()<6) return false; boolean hasUpper=false, hasDigit=false; for(char c: p.toCharArray()){ if(Character.isUpperCase(c)) hasUpper=true; if(Character.isDigit(c)) hasDigit=true; } return hasUpper && hasDigit; }
 
-    private void navigateToMainApp(Usuario usuario) { try { String fxml = usuario.isEsAdmin() ? "/fxml/admin-dashboard.fxml" : "/fxml/user-dashboard.fxml"; FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml)); Parent root; try { root = loader.load(); Object controller = loader.getController(); if (controller instanceof UserDashboardController && !usuario.isEsAdmin()) { ((UserDashboardController) controller).setCurrentUser(usuario); } else if (controller instanceof AdminDashboardController && usuario.isEsAdmin()) { ((AdminDashboardController) controller).setCurrentUser(usuario);} } catch (IOException ex) { System.err.println("FXML no encontrado: " + fxml + " - usando fallback"); root = createFallback(usuario);} Scene scene = new Scene(root, 1200, 800); StyleManager.applySpotifyTheme(scene); Stage stage = (Stage) loginButton.getScene().getWindow(); stage.setScene(scene); stage.setTitle(usuario.isEsAdmin()?"SyncUp - Admin":"SyncUp - Usuario"); stage.centerOnScreen(); } catch (Exception e1) { System.err.println("Error completo: " + e1); showError("Error cargando UI: "+e1.getMessage()); } }
+    private void navigateToMainApp(Usuario usuario) { 
+        try { 
+            String fxml = usuario.isEsAdmin() ? "/fxml/admin-dashboard.fxml" : "/fxml/user-dashboard.fxml"; 
+            System.out.println("🔍 Navegando a: " + fxml + " (esAdmin: " + usuario.isEsAdmin() + ", user: " + usuario.getUsername() + ")");
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml)); 
+            Parent root; 
+            try { 
+                root = loader.load(); 
+                Object controller = loader.getController(); 
+                if (controller instanceof UserDashboardController && !usuario.isEsAdmin()) { 
+                    ((UserDashboardController) controller).setCurrentUser(usuario); 
+                } else if (controller instanceof AdminDashboardController && usuario.isEsAdmin()) { 
+                    ((AdminDashboardController) controller).setCurrentUser(usuario);
+                } 
+            } catch (IOException ex) { 
+                System.err.println("FXML no encontrado: " + fxml + " - usando fallback"); 
+                root = createFallback(usuario);
+            } 
+            Scene scene = new Scene(root, 1200, 800); 
+            StyleManager.applySpotifyTheme(scene); 
+            Stage stage = (Stage) loginButton.getScene().getWindow(); 
+            stage.setScene(scene); 
+            stage.setTitle(usuario.isEsAdmin()?"SyncUp - Admin":"SyncUp - Usuario"); 
+            stage.centerOnScreen(); 
+        } catch (Exception e1) { 
+            System.err.println("Error completo: " + e1); 
+            showError("Error cargando UI: "+e1.getMessage()); 
+        } 
+    }
 
     private Parent createFallback(Usuario usuario) { VBox box = new VBox(10); box.setStyle("-fx-padding: 20; -fx-alignment: center;"); Label titulo = new Label("Bienvenido " + (usuario.getUsername()!=null?usuario.getUsername():"usuario")); titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;"); Label info = new Label(usuario.isEsAdmin()?"Panel de Administrador (Fallback)":"Panel de Usuario (Fallback)"); Button logout = new Button("Cerrar Sesión"); logout.setOnAction(e -> { try { FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml")); Parent loginRoot = loginLoader.load(); Scene loginScene = new Scene(loginRoot, 1200, 800); StyleManager.applySpotifyTheme(loginScene); Stage stage = (Stage) ((Button)e.getSource()).getScene().getWindow(); stage.setScene(loginScene); stage.setTitle("SyncUp - Login"); } catch (Exception ex) { System.err.println("Error volviendo a login: " + ex); } }); box.getChildren().addAll(titulo, info, logout); return box; }
 

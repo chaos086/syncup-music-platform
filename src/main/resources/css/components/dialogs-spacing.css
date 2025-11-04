@@ -1,15 +1,12 @@
-/* Ajustes del diálogo de signup: margen para evitar solapamiento del helper con botones */
-
-.signup-dialog .button-bar {
-    -fx-padding: 16px 0 0 0; /* Separar botones del contenido */
+/* Espaciado adicional del button-bar para evitar solape del helper */
+.signup-dialog .button-bar,
+.signup-dialog .dialog-pane > .button-bar,
+.dialog-pane > .button-bar {
+    -fx-padding: 24px 0 0 0; /* bajar más los botones */
 }
 
-/* Contenedor de helper/validación al final del formulario */
-.signup-dialog .footer-helper {
-    -fx-padding: 6px 0 0 0; /* Espacio antes del button-bar */
-}
-
-/* Más espacio interior para el dialog para acomodar todo sin solaparse */
-.signup-dialog .dialog-pane {
-    -fx-padding: 24px; /* Incremento del padding general */
+/* Asegurar alto mínimo del contenido del dialog para que quepa el helper */
+.signup-dialog .content,
+.signup-dialog .dialog-pane .content {
+    -fx-min-height: 60px; /* espacio para mensaje de validación */
 }

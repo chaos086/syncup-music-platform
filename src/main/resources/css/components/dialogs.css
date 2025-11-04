@@ -1,8 +1,103 @@
-/* Dialogs (incluye signup) */
-.signup-dialog .dialog-pane { -fx-background-color: #181818; }
-.signup-dialog .label { -fx-text-fill: #ffffff; }
-.signup-dialog .text-field, .signup-dialog .password-field { -fx-background-color: #2a2a2a; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #b3b3b3; -fx-background-radius: 10px; -fx-border-color: transparent; -fx-border-radius: 10px; -fx-padding: 8px 12px; }
-.signup-dialog .text-field:focused, .signup-dialog .password-field:focused { -fx-border-color: #1db954; -fx-border-width: 2px; }
-.signup-dialog .button { -fx-background-radius: 20px; }
-.signup-dialog .button:default { -fx-background-color: #1db954; -fx-text-fill: #000; }
-.signup-dialog .button:default:hover { -fx-background-color: #1ed760; }
+/* Dialogs - Mejorados con forma cuadrada y validación visual */
+
+/* CORRECCIÓN 2: Dialog de signup como cuadrado en lugar de rectángulo */
+.signup-dialog {
+    -fx-min-width: 400px;
+    -fx-max-width: 400px;
+    -fx-min-height: 400px; /* Hacer más cuadrado */
+    -fx-max-height: 450px;
+    -fx-pref-width: 400px;
+    -fx-pref-height: 425px; /* Forma cuadrada estética */
+}
+
+.signup-dialog .dialog-pane {
+    -fx-background-color: #181818;
+    -fx-background-radius: 10px;
+    -fx-padding: 20px;
+}
+
+.signup-dialog .header-panel {
+    -fx-background-color: #181818;
+    -fx-text-fill: #ffffff;
+}
+
+.signup-dialog .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-padding: 0 0 5px 0;
+}
+
+/* Campos de texto con texto blanco */
+.signup-dialog .text-field,
+.signup-dialog .password-field {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #ffffff; /* Texto blanco al escribir */
+    -fx-prompt-text-fill: #b3b3b3;
+    -fx-background-radius: 10px;
+    -fx-border-color: transparent;
+    -fx-border-radius: 10px;
+    -fx-padding: 10px 12px;
+    -fx-font-size: 14px;
+    -fx-min-height: 35px;
+}
+
+.signup-dialog .text-field:focused,
+.signup-dialog .password-field:focused {
+    -fx-border-color: #1db954;
+    -fx-border-width: 2px;
+    -fx-text-fill: #ffffff;
+}
+
+/* CORRECCIÓN 2: Estados de error con borde rojo */
+.signup-dialog .text-field.input-error,
+.signup-dialog .password-field.input-error {
+    -fx-border-color: #e22134 !important;
+    -fx-border-width: 2px !important;
+    -fx-text-fill: #ffffff !important;
+}
+
+/* Botones del dialog */
+.signup-dialog .button {
+    -fx-background-radius: 20px;
+    -fx-padding: 10px 20px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-min-width: 100px;
+}
+
+.signup-dialog .button:default {
+    -fx-background-color: #1db954;
+    -fx-text-fill: #000000;
+}
+
+.signup-dialog .button:default:hover {
+    -fx-background-color: #1ed760;
+}
+
+.signup-dialog .button:cancel {
+    -fx-background-color: transparent;
+    -fx-border-color: #535353;
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+    -fx-text-fill: #ffffff;
+}
+
+.signup-dialog .button:cancel:hover {
+    -fx-background-color: #1a1a1a;
+}
+
+/* Mensajes de validación */
+.signup-dialog .validation-label {
+    -fx-text-fill: #e22134;
+    -fx-font-size: 12px;
+    -fx-padding: 2px 0 5px 0;
+    -fx-wrap-text: true;
+}
+
+/* Título del dialog */
+.signup-dialog .title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 15px 0;
+}

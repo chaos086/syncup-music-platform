@@ -1,18 +1,9 @@
-/* Especifico para el BarChart aislado (chart-dark-framed) */
-.chart-dark-framed .axis .tick-label,
-.chart-dark-framed .axis .axis-label {
-    -fx-text-fill: #ffffff !important; /* Ejes X e Y en blanco */
+/* PieChart legend container negro solo para este panel (clase dedicada) */
+.pie-legend-dark {
+    -fx-background-color: #121212;
+    -fx-border-color: #1db954;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
 }
-
-/* Barras verdes para todas las series dentro de este BarChart */
-.chart-dark-framed .chart-bar,
-.chart-dark-framed .default-color0.chart-bar,
-.chart-dark-framed .default-color1.chart-bar,
-.chart-dark-framed .default-color2.chart-bar,
-.chart-dark-framed .default-color3.chart-bar,
-.chart-dark-framed .default-color4.chart-bar,
-.chart-dark-framed .default-color5.chart-bar,
-.chart-dark-framed .default-color6.chart-bar,
-.chart-dark-framed .default-color7.chart-bar {
-    -fx-bar-fill: #1db954 !important; /* Verde Spotify */
-}
+.pie-legend-dark .label { -fx-text-fill: #ffffff; }

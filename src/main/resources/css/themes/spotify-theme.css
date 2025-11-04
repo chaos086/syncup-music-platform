@@ -5,3 +5,6 @@
 @import url("../components/tables.css");
 @import url("../components/sidebar.css");
 @import url("../components/dialogs.css");
+@import url("../components/dialogs-spacing.css"); /* nuevo spacing para evitar solapes */
+@import url("../components/media-controls.css"); /* nuevo: sliders de progreso/volumen */
+@import url("../components/admin.css"); /* nuevo: estética admin */

@@ -1,54 +1,42 @@
-/* Ajustes de gráficos de barras y área de admin adicionales */
+/* Mejoras adicionales Admin: fondos negros y colores */
 
-/* Colores de series para barras que contrasten con el fondo */
-.chart-bar .chart-bar {
-    -fx-bar-fill: #1db954; /* verde Spotify por defecto */
-}
+/* Fondo del plot y región del chart negros */
+.chart-content, .chart-plot-background { -fx-background-color: #0f0f0f; }
 
-/* Paleta alternativa por series */
+/* Barras verdes por defecto y ejes en blanco más visibles */
 .default-color0.chart-bar { -fx-bar-fill: #1db954; }
-.default-color1.chart-bar { -fx-bar-fill: #4bc0c0; }
-.default-color2.chart-bar { -fx-bar-fill: #ff6384; }
-.default-color3.chart-bar { -fx-bar-fill: #ffcd56; }
-.default-color4.chart-bar { -fx-bar-fill: #36a2eb; }
+.axis .tick-label { -fx-text-fill: #ffffff !important; }
+.axis .axis-label { -fx-text-fill: #ffffff !important; -fx-font-weight: bold; }
 
-/* Texto de ejes, ticks y etiquetas en blanco (más fuerte) */
-.axis .tick-label, .axis .axis-label {
-    -fx-text-fill: #ffffff !important;
-    -fx-font-size: 12px;
-}
+/* Pie chart labels blancos */
+.chart-pie-label { -fx-fill: #ffffff; -fx-font-weight: bold; }
 
-.chart-legend-item-symbol { -fx-background-color: #1db954, white; }
-.chart-legend-item { -fx-text-fill: #ffffff; }
+/* Leyenda en tarjeta negra con borde verde */
+.chart-legend { -fx-background-color: #121212; -fx-border-color: #1db954; -fx-border-radius: 8px; -fx-background-radius: 8px; }
+.chart-legend .label { -fx-text-fill: #ffffff; }
 
-/* Tabs más relacionados al tema (estilo chips) */
-.tab-pane { -fx-background-color: transparent; }
-.tab-pane:top > .tab-header-area { -fx-background-color: transparent; }
-.tab-pane .tab-header-area .headers-region .tab {
-    -fx-background-color: #1a1a1a;
-    -fx-text-base-color: #ffffff;
-    -fx-background-radius: 16px 16px 0 0;
-    -fx-padding: 8px 14px;
-    -fx-border-color: #2a2a2a;
-    -fx-border-width: 0 0 2px 0;
-}
-.tab-pane .tab-header-area .headers-region .tab:selected {
-    -fx-background-color: #1db95433;
-    -fx-border-color: #1db954;
-}
+/* Dot de leyenda por serie (mantiene color de cada porción) */
+.default-color0.chart-pie .chart-legend-item-symbol { -fx-background-color: #ff6384, transparent; }
+.default-color1.chart-pie .chart-legend-item-symbol { -fx-background-color: #ffcd56, transparent; }
+.default-color2.chart-pie .chart-legend-item-symbol { -fx-background-color: #36a2eb, transparent; }
+.default-color3.chart-pie .chart-legend-item-symbol { -fx-background-color: #4bc0c0, transparent; }
+.default-color4.chart-pie .chart-legend-item-symbol { -fx-background-color: #1db954, transparent; }
 
-/* TextArea oscuro con borde verde y texto blanco */
-.text-area {
-    -fx-control-inner-background: #121212;
+/* Rectángulo contenedor bajo el pie chart (negro con borde verde) */
+.admin-dashboard .legend-container,
+.pie-legend-container {
     -fx-background-color: #121212;
-    -fx-text-fill: #ffffff;
-    -fx-highlight-fill: #1db95455;
-    -fx-highlight-text-fill: #ffffff;
-    -fx-background-radius: 10px;
-    -fx-border-radius: 10px;
     -fx-border-color: #1db954;
-    -fx-border-width: 2px;
-    -fx-padding: 8px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
 }
 
-.text-area .content { -fx-background-color: #121212; }
+/* Botón Eliminar rojo tipo danger */
+.danger-button, Button.danger-button {
+    -fx-background-color: #E22134 !important;
+    -fx-text-fill: #000000 !important;
+    -fx-background-radius: 18px;
+    -fx-padding: 8px 16px;
+    -fx-font-weight: bold;
+}
+.danger-button:hover { -fx-background-color: #c81e2f !important; }

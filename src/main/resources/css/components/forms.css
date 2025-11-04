@@ -1,6 +1,61 @@
-/* Forms */
-.text-field, TextField, .password-field, PasswordField { -fx-background-color: #2a2a2a; -fx-text-fill: -color-text; -fx-prompt-text-fill: -color-text-muted; -fx-background-radius: 10px; -fx-border-color: transparent; -fx-border-radius: 10px; -fx-padding: 8px 12px; }
-.text-field:focused, .password-field:focused { -fx-border-color: -color-accent; -fx-border-width: 2px; }
-.input-error { -fx-border-color: -color-danger !important; -fx-border-width: 2px !important; }
-.helper-text { -fx-text-fill: -color-text-muted; -fx-font-size: 11px; }
-.helper-text.error { -fx-text-fill: -color-danger; }
+/* Forms - Mejorados con todas las correcciones estéticas */
+
+/* Text fields y password fields con texto blanco */
+.text-field, TextField, .password-field, PasswordField {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #ffffff; /* CORRECCIÓN 1: Texto blanco al escribir */
+    -fx-prompt-text-fill: #b3b3b3;
+    -fx-background-radius: 10px;
+    -fx-border-color: transparent;
+    -fx-border-radius: 10px;
+    -fx-padding: 8px 12px;
+    -fx-font-size: 14px;
+}
+
+/* Focus states */
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #1db954;
+    -fx-border-width: 2px;
+    -fx-text-fill: #ffffff; /* Asegurar texto blanco al escribir */
+}
+
+/* Error states - CORRECCIÓN 2: Borde rojo cuando no cumple requisitos */
+.input-error, .text-field.input-error, .password-field.input-error {
+    -fx-border-color: #e22134 !important;
+    -fx-border-width: 2px !important;
+    -fx-text-fill: #ffffff !important;
+}
+
+/* Helper text */
+.helper-text {
+    -fx-text-fill: #b3b3b3;
+    -fx-font-size: 11px;
+}
+
+.helper-text.error {
+    -fx-text-fill: #e22134;
+}
+
+/* Validation message styles */
+.validation-message {
+    -fx-text-fill: #e22134;
+    -fx-font-size: 12px;
+    -fx-padding: 4px 0 0 0;
+}
+
+/* Específico para campos de login que mantienen el texto blanco */
+.login-field {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: #ffffff !important;
+    -fx-prompt-text-fill: #b3b3b3;
+    -fx-background-radius: 10px;
+    -fx-border-color: transparent;
+    -fx-border-radius: 10px;
+    -fx-padding: 8px 12px;
+}
+
+.login-field:focused {
+    -fx-border-color: #1db954;
+    -fx-border-width: 2px;
+    -fx-text-fill: #ffffff !important;
+}

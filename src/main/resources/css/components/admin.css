@@ -1,42 +1,45 @@
-/* Mejoras adicionales Admin: fondos negros y colores */
+/* Admin BarChart: texto blanco y barras verdes forzadas */
+.admin-dashboard .chart-content, .admin-dashboard .chart-plot-background { -fx-background-color: #0f0f0f; }
+.admin-dashboard .axis .tick-label, .admin-dashboard .axis .axis-label { -fx-text-fill: #ffffff !important; }
+.admin-dashboard .chart-bar .chart-bar, .admin-dashboard .default-color0.chart-bar { -fx-bar-fill: #1db954 !important; }
 
-/* Fondo del plot y región del chart negros */
-.chart-content, .chart-plot-background { -fx-background-color: #0f0f0f; }
-
-/* Barras verdes por defecto y ejes en blanco más visibles */
-.default-color0.chart-bar { -fx-bar-fill: #1db954; }
-.axis .tick-label { -fx-text-fill: #ffffff !important; }
-.axis .axis-label { -fx-text-fill: #ffffff !important; -fx-font-weight: bold; }
-
-/* Pie chart labels blancos */
-.chart-pie-label { -fx-fill: #ffffff; -fx-font-weight: bold; }
-
-/* Leyenda en tarjeta negra con borde verde */
-.chart-legend { -fx-background-color: #121212; -fx-border-color: #1db954; -fx-border-radius: 8px; -fx-background-radius: 8px; }
-.chart-legend .label { -fx-text-fill: #ffffff; }
-
-/* Dot de leyenda por serie (mantiene color de cada porción) */
-.default-color0.chart-pie .chart-legend-item-symbol { -fx-background-color: #ff6384, transparent; }
-.default-color1.chart-pie .chart-legend-item-symbol { -fx-background-color: #ffcd56, transparent; }
-.default-color2.chart-pie .chart-legend-item-symbol { -fx-background-color: #36a2eb, transparent; }
-.default-color3.chart-pie .chart-legend-item-symbol { -fx-background-color: #4bc0c0, transparent; }
-.default-color4.chart-pie .chart-legend-item-symbol { -fx-background-color: #1db954, transparent; }
-
-/* Rectángulo contenedor bajo el pie chart (negro con borde verde) */
-.admin-dashboard .legend-container,
-.pie-legend-container {
+/* Contenedor negro con borde verde y texto blanco */
+.admin-dashboard .panel-dark {
     -fx-background-color: #121212;
     -fx-border-color: #1db954;
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
 }
+.admin-dashboard .panel-dark .label, .admin-dashboard .panel-dark .text, .admin-dashboard .panel-dark Label { -fx-text-fill: #ffffff; }
 
-/* Botón Eliminar rojo tipo danger */
-.danger-button, Button.danger-button {
-    -fx-background-color: #E22134 !important;
+/* Tabs estilo chip (versión que te gustó) */
+.admin-dashboard .tab-pane { -fx-background-color: transparent; }
+.admin-dashboard .tab-pane:top > .tab-header-area { -fx-background-color: transparent; }
+.admin-dashboard .tab-pane .tab-header-area .headers-region .tab {
+    -fx-background-color: #1a1a1a;
+    -fx-text-base-color: #ffffff;
+    -fx-background-radius: 16px 16px 0 0;
+    -fx-padding: 8px 14px;
+    -fx-border-color: #2a2a2a;
+    -fx-border-width: 0 0 2px 0;
+}
+.admin-dashboard .tab-pane .tab-header-area .headers-region .tab:selected {
+    -fx-background-color: #1db95433;
+    -fx-border-color: #1db954;
+}
+
+/* Dialogo Crear Cuenta: botones con apariencia */
+.signup-dialog .button:default { /* Aceptar */
+    -fx-background-color: #1db954 !important;
     -fx-text-fill: #000000 !important;
-    -fx-background-radius: 18px;
-    -fx-padding: 8px 16px;
+    -fx-background-radius: 20px !important;
     -fx-font-weight: bold;
 }
-.danger-button:hover { -fx-background-color: #c81e2f !important; }
+.signup-dialog .button:default:hover { -fx-background-color: #1ed760 !important; }
+.signup-dialog .button:cancel { /* Cancelar */
+    -fx-background-color: #E22134 !important;
+    -fx-text-fill: #000000 !important;
+    -fx-background-radius: 20px !important;
+    -fx-font-weight: bold;
+}
+.signup-dialog .button:cancel:hover { -fx-background-color: #c81e2f !important; }

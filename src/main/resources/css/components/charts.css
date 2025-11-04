@@ -1,0 +1,8 @@
+/* Estilo aislado para el BarChart con marco verde y fondo negro */
+.chart-dark-framed .chart-content,
+.chart-dark-framed .chart-plot-background {
+    -fx-background-color: #121212;
+    -fx-border-color: #1db954;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+}

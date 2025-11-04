@@ -1,4 +1,4 @@
-/* Buttons - estilo Spotify */
+/* Buttons - Mejorados con botón de favoritos verde redondeado */
 
 /* Primary button - verde Spotify */
 .primary-button, Button.primary-button {
@@ -31,6 +31,39 @@
     -fx-background-color: #1a1a1a;
 }
 
+/* CORRECCIÓN 3: Botón "❤️ Agregar a Favoritos" verde con bordes redondeados */
+.favorite-button, .favorites-button, Button.favorite-button {
+    -fx-background-color: #1db954 !important; /* Verde Spotify */
+    -fx-text-fill: #000000 !important; /* Texto negro */
+    -fx-font-weight: bold;
+    -fx-background-radius: 20px !important; /* Bordes redondeados */
+    -fx-border-radius: 20px !important;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-min-height: 32px;
+    -fx-pref-height: 32px;
+    -fx-alignment: center;
+}
+
+.favorite-button:hover, .favorites-button:hover {
+    -fx-background-color: #1ed760 !important;
+}
+
+.favorite-button:pressed, .favorites-button:pressed {
+    -fx-background-color: #17a446 !important;
+}
+
+/* Botón de favoritos ya añadido (opcional) */
+.favorite-button.added {
+    -fx-background-color: #e22134 !important;
+    -fx-text-fill: #ffffff !important;
+}
+
+.favorite-button.added:hover {
+    -fx-background-color: #c81e2f !important;
+}
+
 /* Logout button */
 .logout-button {
     -fx-background-color: #E22134;
@@ -42,4 +75,33 @@
 
 .logout-button:hover {
     -fx-background-color: #c81e2f;
+}
+
+/* Botón genérico verde (para otros usos) */
+.green-button {
+    -fx-background-color: #1db954;
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.green-button:hover {
+    -fx-background-color: #1ed760;
+}
+
+/* Botón de acción general */
+.action-button {
+    -fx-background-color: #1db954;
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+}
+
+.action-button:hover {
+    -fx-background-color: #1ed760;
 }

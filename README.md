@@ -253,7 +253,6 @@ Ejecutar pruebas unitarias:
 - ✅ **Algoritmos optimizados** para recomendaciones
 - ✅ **Interface moderna** estilo Spotify
 - ✅ **Testing exhaustivo** con alta cobertura
-- ✅ **Documentación completa** con JavaDoc
 - ✅ **Java 11 compatible** (text blocks removidos)
 
 ---
@@ -266,6 +265,12 @@ Ejecutar pruebas unitarias:
 4. **▶️ EJECUTAR** → `Main.java` → Run 'Main.main()'
 5. **🔐 LOGIN** → `demo_user/demo123` o `admin/admin123`
 6. **🎵 DISFRUTAR** → Dashboard completo con todas las funcionalidades
+
+---
+
+## 🖼️ **Diagrama de clases Spoty**
+
+![Diagrama de clases Spoty](docs/images/class-diagram-spoty.png)
 
 ---
 

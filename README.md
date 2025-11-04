@@ -270,10 +270,10 @@ Ejecutar pruebas unitarias:
 
 ## 🖼️ **Diagrama de clases Spoty**
 
-![Diagrama de clases Spoty](docs/images/class-diagram-spoty.png)
+![Diagrama de clases Spoty](docs/images/diagramaDeClase.png)
 
 ---
 
-**¡Proyecto 100% completo, corregido y listo para ejecución! 🎉**
+**¡Proyecto 100% completo y listo para ejecución! 🎉**
 
 *Errores de compilación Java 11 resueltos - El sistema ahora es completamente funcional.*

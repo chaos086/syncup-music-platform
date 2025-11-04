@@ -29,9 +29,14 @@ public class UserRepository {
             String email = String.valueOf(m.getOrDefault("email",""));
             String name = String.valueOf(m.getOrDefault("name",""));
             String hash = String.valueOf(m.getOrDefault("passwordHash",""));
+            // NUEVO: cargar flag de admin desde persistencia
+            Boolean isAdmin = (Boolean) m.getOrDefault("isAdmin", false);
+            
             if(id.isBlank()||username.isBlank()) continue;
             Usuario u = new Usuario(id, username, hash, name, email);
             u.setPasswordHash(hash);
+            u.setEsAdmin(isAdmin != null && isAdmin); // establecer rol desde persistencia
+            
             byId.put(id, u);
             usernameToId.put(username.toLowerCase(Locale.ROOT), id);
             if(email!=null && !email.isBlank()) emailToId.put(email.toLowerCase(Locale.ROOT), id);
@@ -49,6 +54,8 @@ public class UserRepository {
                 m.put("email", u.getEmail());
                 m.put("name", u.getNombreCompleto());
                 m.put("passwordHash", u.getPasswordHash()!=null? u.getPasswordHash(): "");
+                // NUEVO: persistir rol de admin
+                m.put("isAdmin", u.isEsAdmin());
                 out.add(m);
             }
             store.saveUsers(out);
@@ -75,7 +82,17 @@ public class UserRepository {
         return id==null? Optional.empty(): Optional.ofNullable(byId.get(id));
     }
 
+    /**
+     * Crea un nuevo usuario con rol especificado
+     */
     public synchronized Usuario create(String name, String username, String email, String rawPassword){
+        return create(name, username, email, rawPassword, false);
+    }
+    
+    /**
+     * Crea un nuevo usuario con rol especificado (admin o usuario normal)
+     */
+    public synchronized Usuario create(String name, String username, String email, String rawPassword, boolean isAdmin){
         if(username==null || username.isBlank() || username.contains(" ") || username.length()<3)
             throw new IllegalArgumentException("Username inválido");
         if(email!=null && !email.isBlank() && !email.contains("@"))
@@ -93,11 +110,26 @@ public class UserRepository {
         String hash = PasswordHasher.sha256(rawPassword);
         Usuario u = new Usuario(id, username, hash, name==null?"":name, email==null?"":email);
         u.setPasswordHash(hash);
+        u.setEsAdmin(isAdmin); // establecer rol
+        
         byId.put(id, u);
         usernameToId.put(ukey, id);
         if(email!=null && !email.isBlank()) emailToId.put(email.toLowerCase(Locale.ROOT), id);
-        save();
+        save(); // persistir con rol incluido
         return u;
+    }
+    
+    /**
+     * Actualiza el rol de admin de un usuario existente
+     */
+    public synchronized boolean updateAdminRole(String username, boolean isAdmin) {
+        Optional<Usuario> userOpt = findByUsername(username);
+        if (userOpt.isEmpty()) return false;
+        
+        Usuario user = userOpt.get();
+        user.setEsAdmin(isAdmin);
+        save(); // persistir cambio de rol
+        return true;
     }
 
     public synchronized boolean authenticate(String userOrEmail, String rawPassword){
@@ -107,5 +139,12 @@ public class UserRepository {
         String stored = ou.get().getPasswordHash();
         if(stored==null || stored.isBlank()) return false; // forzar login con esquema nuevo
         return calc.equals(stored);
+    }
+    
+    /**
+     * Método especial para credenciales de administrador hardcodeadas
+     */
+    public synchronized boolean isAdminCredentials(String username, String password) {
+        return "admin".equals(username) && "admin123".equals(password);
     }
 }

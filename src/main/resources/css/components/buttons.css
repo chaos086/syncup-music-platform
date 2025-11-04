@@ -60,6 +60,16 @@
     -fx-text-fill: #ffffff !important;
 }
 
+.danger-button{
+    -fx-background-color: #E22134;
+    -fx-text-fill: #000000;
+    -fx-background-radius: 20px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.
+
 .favorite-button.added:hover {
     -fx-background-color: #c81e2f !important;
 }

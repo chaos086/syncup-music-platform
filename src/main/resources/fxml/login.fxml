@@ -18,8 +18,8 @@
             <ImageView fx:id="logoImageView" fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
                <!-- Logo se cargará desde el código -->
             </ImageView>
-            
-            <Label styleClass="app-title" text="SyncUp">
+<!--            Titulo de la aplicación-->
+            <Label styleClass="app-title" text="Spoty">
                <font>
                   <Font name="System Bold" size="32.0" />
                </font>

@@ -41,10 +41,23 @@ public class LoginController implements Initializable {
         String user = usernameField.getText().trim();
         String pass = passwordField.getText();
         if (user.isEmpty() || pass.isEmpty()) { showError("Ingresa usuario y contraseña"); return; }
-        if (userRepo.authenticate(user, pass)) { navigateToMainAppSimple(); return; }
+
+        // Primero: autenticación contra persistencia
+        if (userRepo.authenticate(user, pass)) {
+            Usuario usuario = userRepo.findByUsernameOrEmail(user).orElse(null);
+            if (usuario == null && "admin".equals(user)) {
+                // Fallback: admin fijo en memoria
+                usuario = dataManager.getUsuarioByUsername("admin");
+                if (usuario != null) usuario.setEsAdmin(true);
+            }
+            if (usuario != null) { hideError(); navigateToMainApp(usuario); return; }
+        }
+
+        // Segundo: autenticación vía DataManager (incluye admin fijo)
         Usuario usuario = dataManager.authenticateUser(user, pass);
-        if (usuario != null) { hideError(); navigateToMainApp(usuario); }
-        else { showError("Usuario o contraseña incorrectos"); }
+        if (usuario != null) { hideError(); navigateToMainApp(usuario); return; }
+
+        showError("Usuario o contraseña incorrectos");
     }
 
     @FXML private void handleRegister(ActionEvent e) {
@@ -122,8 +135,6 @@ public class LoginController implements Initializable {
     private void setErrorStyle(Label l, boolean error){ l.getStyleClass().remove("error"); if(error) l.getStyleClass().add("error"); }
 
     private boolean isStrong(String p){ if(p==null || p.length()<6) return false; boolean hasUpper=false, hasDigit=false; for(char c: p.toCharArray()){ if(Character.isUpperCase(c)) hasUpper=true; if(Character.isDigit(c)) hasDigit=true; } return hasUpper && hasDigit; }
-
-    private void navigateToMainAppSimple() { try { String fxml = "/fxml/user-dashboard.fxml"; FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml)); Parent root = loader.load(); Scene scene = new Scene(root, 1200, 800); StyleManager.applySpotifyTheme(scene); Stage stage = (Stage) loginButton.getScene().getWindow(); stage.setScene(scene); stage.setTitle("SyncUp - Usuario"); stage.centerOnScreen(); } catch (Exception ex) { System.err.println("Error cargando UI: " + ex); showError("Error cargando UI: " + ex.getMessage()); } }
 
     private void navigateToMainApp(Usuario usuario) { try { String fxml = usuario.isEsAdmin() ? "/fxml/admin-dashboard.fxml" : "/fxml/user-dashboard.fxml"; FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml)); Parent root; try { root = loader.load(); Object controller = loader.getController(); if (controller instanceof UserDashboardController && !usuario.isEsAdmin()) { ((UserDashboardController) controller).setCurrentUser(usuario); } else if (controller instanceof AdminDashboardController && usuario.isEsAdmin()) { ((AdminDashboardController) controller).setCurrentUser(usuario);} } catch (IOException ex) { System.err.println("FXML no encontrado: " + fxml + " - usando fallback"); root = createFallback(usuario);} Scene scene = new Scene(root, 1200, 800); StyleManager.applySpotifyTheme(scene); Stage stage = (Stage) loginButton.getScene().getWindow(); stage.setScene(scene); stage.setTitle(usuario.isEsAdmin()?"SyncUp - Admin":"SyncUp - Usuario"); stage.centerOnScreen(); } catch (Exception e1) { System.err.println("Error completo: " + e1); showError("Error cargando UI: "+e1.getMessage()); } }
 

@@ -58,7 +58,8 @@
                   </VBox>
                </HBox>
                
-               <TextArea fx:id="systemStatsArea" editable="false" prefHeight="150.0" wrapText="true" styleClass="panel-dark" />
+               <!-- SOLO este TextArea: fondo negro, borde verde, letra blanca -->
+               <TextArea fx:id="systemStatsArea" editable="false" prefHeight="150.0" wrapText="true" style="-fx-control-inner-background:#121212; -fx-background-color:#121212; -fx-text-fill:#ffffff; -fx-highlight-fill:#1db95455; -fx-highlight-text-fill:#ffffff; -fx-background-radius:10px; -fx-border-radius:10px; -fx-border-color:#1db954; -fx-border-width:2px; -fx-padding:8px;" />
                
                <padding>
                   <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
@@ -103,6 +104,7 @@
                </HBox>
                
                <Label fx:id="bulkLoadStatusLabel" text="Sin archivo" />
+               <!-- Fondo negro del contenedor blanco bajo el pie: aplicado con panel-dark -->
                <TextArea fx:id="bulkLoadResultsArea" editable="false" prefHeight="300.0" wrapText="true" styleClass="panel-dark" />
                
                <padding>

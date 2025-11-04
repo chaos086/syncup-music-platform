@@ -113,3 +113,26 @@
 .action-button:hover {
     -fx-background-color: #1ed760;
 }
+
+/* Botones de diálogo específicos: aceptar (verde) y cancelar (rojo) */
+.dialog-accept, Button.dialog-accept {
+    -fx-background-color: #1db954;   /* verde Spotify */
+    -fx-text-fill: #000000;          /* texto negro */
+    -fx-font-weight: bold;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-padding: 10px 18px;
+}
+.dialog-accept:hover { -fx-background-color: #1ed760; }
+.dialog-accept:pressed { -fx-background-color: #17a446; }
+
+.dialog-cancel, Button.dialog-cancel {
+    -fx-background-color: #E22134;   /* rojo */
+    -fx-text-fill: #000000;          /* texto negro */
+    -fx-font-weight: bold;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-padding: 10px 18px;
+}
+.dialog-cancel:hover { -fx-background-color: #c81e2f; }
+.dialog-cancel:pressed { -fx-background-color: #a91b28; }
